@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Auto SL Calc</title>
+  <link rel="stylesheet" href="popup.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="title-row">
+        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        <h1>Auto SL Calc</h1>
+      </div>
+      <p class="subtitle">Futures Stop Loss Calculator</p>
+    </div>
+
+    <div class="card">
+      <div class="setting-group row-group">
+        <label for="enabledToggle" class="setting-label">Enable Main Loop</label>
+        <label class="switch">
+          <input type="checkbox" id="enabledToggle">
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="setting-group">
+        <label for="riskPercent" class="setting-label">Risk Percentage (%)</label>
+        <p class="setting-desc">Percentage of total available balance to risk.</p>
+        <div class="input-wrapper">
+          <input type="number" id="riskPercent" step="0.1" min="0.1" value="0.5">
+          <span class="suffix">%</span>
+        </div>
+      </div>
+
+      <div class="setting-group">
+        <label for="minutesMemory" class="setting-label">Price Memory Window</label>
+        <p class="setting-desc">Minutes to keep min/max prices in memory.</p>
+        <div class="input-wrapper">
+          <input type="number" id="minutesMemory" step="1" min="1" value="10">
+          <span class="suffix">min</span>
+        </div>
+      </div>
+    </div>
+
+    <button id="saveBtn" class="primary-btn">Save Settings</button>
+    <div id="statusMsg" class="status-msg"></div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>

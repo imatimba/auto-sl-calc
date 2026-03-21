@@ -1,0 +1,25 @@
+{
+  "manifest_version": 3,
+  "name": "Auto SL Calc",
+  "version": "1.0",
+  "description": "Calculates the stop loss of futures positions before opening them on crypto exchanges.",
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://bingx.com/*/perpetual/*",
+    "https://bingx.com/*/futures/forward/*"
+  ],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://bingx.com/*/perpetual/*",
+        "https://bingx.com/*/futures/forward/*"
+      ],
+      "js": ["content.js"]
+    }
+  ]
+}
