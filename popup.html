@@ -53,17 +53,29 @@
 
       <div class="setting-group">
         <h2 class="qol-title"
-          style="font-size: 14px; font-weight: 600; color: var(--accent-color); margin-bottom: 4px;">Site Specific QoL
+          style="font-size: 14px; font-weight: 600; color: var(--accent-color); margin-bottom: 8px;">Site Specific QoL
         </h2>
 
-        <div class="setting-group row-group">
-          <label for="autoSLToggle" class="setting-label">Auto-enable SL (BingX Std)</label>
-          <label class="switch">
-            <input type="checkbox" id="autoSLToggle">
-            <span class="slider round"></span>
-          </label>
+        <div class="exchange-group">
+          <h3 class="exchange-title">BingX Standard</h3>
+          <div class="setting-group row-group exchange-feature">
+            <div class="label-with-tooltip">
+              <label for="autoSLToggle" class="setting-label">Auto-enable SL</label>
+              <div class="tooltip-icon"
+                title="Automatically enables Stop Loss and switches to USDT mode upon load of BingX Standard.">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="16" x2="12" y2="11"></line>
+                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+              </div>
+            </div>
+            <label class="switch">
+              <input type="checkbox" id="autoSLToggle">
+              <span class="slider round"></span>
+            </label>
+          </div>
         </div>
-        <p class="setting-desc">Automatically enables Stop Loss and switches to USDT mode upon load.</p>
       </div>
     </div>
 

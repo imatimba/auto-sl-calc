@@ -231,3 +231,43 @@ input:checked + .slider:before {
 .status-msg.error {
   color: var(--error-color);
 }
+
+/* QoL Structure Additions */
+.exchange-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.exchange-title {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+  border-bottom: 1px dashed var(--border-color);
+  padding-bottom: 4px;
+}
+
+.exchange-feature {
+  padding-left: 4px;
+}
+
+.label-with-tooltip {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tooltip-icon {
+  color: var(--text-muted);
+  cursor: help;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.tooltip-icon:hover {
+  color: var(--accent-color);
+}
