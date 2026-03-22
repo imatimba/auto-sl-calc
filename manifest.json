@@ -8,7 +8,8 @@
   ],
   "host_permissions": [
     "https://bingx.com/*/perpetual/*",
-    "https://bingx.com/*/futures/forward/*"
+    "https://bingx.com/*/futures/forward/*",
+    "https://blofin.com/futures/*"
   ],
   "action": {
     "default_popup": "popup.html"
@@ -17,7 +18,8 @@
     {
       "matches": [
         "https://bingx.com/*/perpetual/*",
-        "https://bingx.com/*/futures/forward/*"
+        "https://bingx.com/*/futures/forward/*",
+        "https://blofin.com/futures/*"
       ],
       "js": ["content.js"]
     }
