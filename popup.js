@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const memoryInput = document.getElementById('minutesMemory');
   const autoEnableSLStandardInput = document.getElementById('autoSLToggle');
   const autoMarketBlofinInput = document.getElementById('autoMarketBlofin');
+  const autoTPSLBlofinInput = document.getElementById('autoTPSLBlofin');
   const saveBtn = document.getElementById('saveBtn');
   const statusMsg = document.getElementById('statusMsg');
 
@@ -13,7 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
     'riskPercent',
     'secondsMemory',
     'autoEnableSLStandard',
-    'autoMarketBlofin'
+    'autoMarketBlofin',
+    'autoTPSLBlofin'
   ], (result) => {
     enabledToggle.checked = result.enabled || false;
     
@@ -21,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     autoEnableSLStandardInput.checked = result.autoEnableSLStandard !== undefined ? result.autoEnableSLStandard : true;
     // Default to true for autoMarketBlofin if unset
     autoMarketBlofinInput.checked = result.autoMarketBlofin !== undefined ? result.autoMarketBlofin : true;
+    autoTPSLBlofinInput.checked = result.autoTPSLBlofin !== undefined ? result.autoTPSLBlofin : true;
     
     // Convert stored float (e.g. 0.005) to display percentage (0.5)
     if (result.riskPercent !== undefined) {
@@ -38,6 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const enabled = enabledToggle.checked;
     const autoEnableSLStandard = autoEnableSLStandardInput.checked;
     const autoMarketBlofin = autoMarketBlofinInput.checked;
+    const autoTPSLBlofin = autoTPSLBlofinInput.checked;
     const riskPercentRaw = parseFloat(riskPercentInput.value);
     const minutesMemoryRaw = parseFloat(memoryInput.value);
 
@@ -54,7 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
       riskPercent: _riskPercent,
       secondsMemory: _secondsMemory,
       autoEnableSLStandard: autoEnableSLStandard,
-      autoMarketBlofin: autoMarketBlofin
+      autoMarketBlofin: autoMarketBlofin,
+      autoTPSLBlofin: autoTPSLBlofin
     }, () => {
       showStatus('Settings saved successfully', true);
     });

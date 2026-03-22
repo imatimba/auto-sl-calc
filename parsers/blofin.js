@@ -1,5 +1,7 @@
 let hasAutoEnabledMarket = false;
 let isAutoEnablingMarket = false;
+let hasAutoEnabledTPSL = false;
+let isAutoEnablingTPSL = false;
 
 const injectBlofinSLCheckboxes = () => {
   if (document.getElementById('auto-sl-blofin-controls')) return;
@@ -48,28 +50,60 @@ const Blofin = {
   onTick: async (settings) => {
     injectBlofinSLCheckboxes();
 
+    // 1. Auto Market Logic
     const autoMarketBlofin = settings.autoMarketBlofin !== undefined ? settings.autoMarketBlofin : true;
-    if (!autoMarketBlofin) return;
+    let isMarketActive = false;
+    
+    const marketLi = document.querySelector('li#market');
+    if (marketLi) {
+      isMarketActive = marketLi.className.includes('after:bu-bg-dark-primary');
+    }
 
-    if (hasAutoEnabledMarket || isAutoEnablingMarket) return;
-    isAutoEnablingMarket = true;
-
-    try {
-      const marketLi = document.querySelector('li#market');
-      if (marketLi) {
-         if (!marketLi.className.includes('after:bu-bg-dark-primary')) {
-           marketLi.click();
-           hasAutoEnabledMarket = true;
-         } else {
-           hasAutoEnabledMarket = true;
-         }
+    if (autoMarketBlofin && !hasAutoEnabledMarket && !isAutoEnablingMarket) {
+      isAutoEnablingMarket = true;
+      try {
+        if (marketLi && !isMarketActive) {
+          marketLi.click();
+          // We don't set hasAutoEnabledMarket yet, we wait for it to be active in next ticks
+        } else if (marketLi && isMarketActive) {
+          hasAutoEnabledMarket = true;
+        }
+      } finally {
+        isAutoEnablingMarket = false;
       }
-    } finally {
-      isAutoEnablingMarket = false;
+    }
+
+    // 2. Auto TP/SL Logic
+    // If autoMarket is enabled, wait until it's finished (tab is active) before doing TP/SL
+    if (autoMarketBlofin && !isMarketActive) return;
+
+    const autoTPSLBlofin = settings.autoTPSLBlofin !== undefined ? settings.autoTPSLBlofin : true;
+    if (autoTPSLBlofin && !hasAutoEnabledTPSL && !isAutoEnablingTPSL) {
+      isAutoEnablingTPSL = true;
+      try {
+        const tpSlCheckbox = document.getElementById('bui-checkbox-TP/SL');
+        if (tpSlCheckbox) {
+          if (!tpSlCheckbox.checked) {
+            const label = tpSlCheckbox.closest('label');
+            if (label) {
+              label.click();
+              hasAutoEnabledTPSL = true;
+            } else {
+              tpSlCheckbox.click();
+              hasAutoEnabledTPSL = true;
+            }
+          } else {
+            hasAutoEnabledTPSL = true;
+          }
+        }
+      } finally {
+        isAutoEnablingTPSL = false;
+      }
     }
   },
   onNavigation: () => {
     hasAutoEnabledMarket = false;
+    hasAutoEnabledTPSL = false;
   },
   getLastPrice: () => {
     const el = document.querySelector('[class*="Ticker_last-price"]');

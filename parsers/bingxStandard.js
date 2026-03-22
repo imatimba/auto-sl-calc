@@ -4,40 +4,40 @@ let isAutoEnablingSL = false;
 const BingXStandard = {
   name: 'BingX Standard',
   onTick: async (settings) => {
+    // 1. Auto Enable SL Logic
     const autoEnableSLStandard = settings.autoEnableSLStandard !== undefined ? settings.autoEnableSLStandard : true;
-    if (!autoEnableSLStandard) return;
+    if (autoEnableSLStandard && !hasAutoEnabledSL && !isAutoEnablingSL) {
+      isAutoEnablingSL = true;
 
-    if (hasAutoEnabledSL || isAutoEnablingSL) return;
-    isAutoEnablingSL = true;
+      try {
+        const slWrapper = Array.from(document.querySelectorAll('.futures-sl-switch-wrap'))
+          .find(el => (el.textContent || '').includes('Stop Loss') || (el.textContent || '').includes('Stop'));
 
-    try {
-      const slWrapper = Array.from(document.querySelectorAll('.futures-sl-switch-wrap'))
-        .find(el => (el.textContent || '').includes('Stop Loss') || (el.textContent || '').includes('Stop'));
-
-      if (!slWrapper) return;
-
-      const switchEl = slWrapper.querySelector('.bx-switch');
-      if (switchEl && !switchEl.classList.contains('bx-switch--checked')) {
-        switchEl.click();
-        await new Promise(r => setTimeout(r, 1000));
-      }
-
-      const dropdownWrapper = document.querySelector('.ti-suffix-unit-wrap');
-      if (dropdownWrapper) {
-        const currentUnit = dropdownWrapper.querySelector('.r-text')?.textContent.trim();
-        if (currentUnit !== 'USDT') {
-          const usdtOption = Array.from(dropdownWrapper.querySelectorAll('li'))
-            .find(li => (li.textContent || '').includes('USDT'));
-          if (usdtOption) {
-            usdtOption.click();
-            hasAutoEnabledSL = true;
+        if (slWrapper) {
+          const switchEl = slWrapper.querySelector('.bx-switch');
+          if (switchEl && !switchEl.classList.contains('bx-switch--checked')) {
+            switchEl.click();
+            await new Promise(r => setTimeout(r, 1000));
           }
-        } else {
-          hasAutoEnabledSL = true;
+
+          const dropdownWrapper = document.querySelector('.ti-suffix-unit-wrap');
+          if (dropdownWrapper) {
+            const currentUnit = dropdownWrapper.querySelector('.r-text')?.textContent.trim();
+            if (currentUnit !== 'USDT') {
+              const usdtOption = Array.from(dropdownWrapper.querySelectorAll('li'))
+                .find(li => (li.textContent || '').includes('USDT'));
+              if (usdtOption) {
+                usdtOption.click();
+                hasAutoEnabledSL = true;
+              }
+            } else {
+              hasAutoEnabledSL = true;
+            }
+          }
         }
+      } finally {
+        isAutoEnablingSL = false;
       }
-    } finally {
-      isAutoEnablingSL = false;
     }
   },
   onNavigation: () => {
