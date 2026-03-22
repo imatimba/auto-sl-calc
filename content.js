@@ -34,7 +34,7 @@ function updatePriceHistory(currentPrice, secondsMemory) {
 }
 
 function mainLoop() {
-  chrome.storage.local.get(['enabled', 'riskPercent', 'secondsMemory', 'autoEnableSLStandard'], (settings) => {
+  chrome.storage.local.get(['enabled', 'riskPercent', 'secondsMemory', 'autoEnableSLStandard', 'autoMarketBlofin'], (settings) => {
     if (!settings.enabled) return; // Only run if extension is toggled ON
 
     const parser = getExchangeParser();

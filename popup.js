@@ -30,15 +30,16 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Convert stored seconds to display minutes
     if (result.secondsMemory !== undefined) {
-      minutesMemoryInput.value = Math.round(result.secondsMemory / 60);
+      memoryInput.value = Math.round(result.secondsMemory / 60);
     }
   });
 
   saveBtn.addEventListener('click', () => {
     const enabled = enabledToggle.checked;
-    const autoEnableSLStandard = autoSLToggle.checked;
+    const autoEnableSLStandard = autoEnableSLStandardInput.checked;
+    const autoMarketBlofin = autoMarketBlofinInput.checked;
     const riskPercentRaw = parseFloat(riskPercentInput.value);
-    const minutesMemoryRaw = parseFloat(minutesMemoryInput.value);
+    const minutesMemoryRaw = parseFloat(memoryInput.value);
 
     if (isNaN(riskPercentRaw) || isNaN(minutesMemoryRaw) || riskPercentRaw <= 0 || minutesMemoryRaw <= 0) {
       showStatus('Invalid input values', false);
@@ -52,7 +53,8 @@ document.addEventListener('DOMContentLoaded', () => {
       enabled: enabled,
       riskPercent: _riskPercent,
       secondsMemory: _secondsMemory,
-      autoEnableSLStandard: autoEnableSLStandard
+      autoEnableSLStandard: autoEnableSLStandard,
+      autoMarketBlofin: autoMarketBlofin
     }, () => {
       showStatus('Settings saved successfully', true);
     });
