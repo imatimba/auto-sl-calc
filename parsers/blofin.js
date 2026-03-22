@@ -1,3 +1,6 @@
+let hasAutoEnabledMarket = false;
+let isAutoEnablingMarket = false;
+
 const injectBlofinSLCheckboxes = () => {
   if (document.getElementById('auto-sl-blofin-controls')) return;
 
@@ -42,8 +45,31 @@ const injectBlofinSLCheckboxes = () => {
 
 const Blofin = {
   name: 'Blofin',
-  onTick: () => {
+  onTick: async (settings) => {
     injectBlofinSLCheckboxes();
+
+    const autoMarketBlofin = settings.autoMarketBlofin !== undefined ? settings.autoMarketBlofin : true;
+    if (!autoMarketBlofin) return;
+
+    if (hasAutoEnabledMarket || isAutoEnablingMarket) return;
+    isAutoEnablingMarket = true;
+
+    try {
+      const marketLi = document.querySelector('li#market');
+      if (marketLi) {
+         if (!marketLi.className.includes('after:bu-bg-dark-primary')) {
+           marketLi.click();
+           hasAutoEnabledMarket = true;
+         } else {
+           hasAutoEnabledMarket = true;
+         }
+      }
+    } finally {
+      isAutoEnablingMarket = false;
+    }
+  },
+  onNavigation: () => {
+    hasAutoEnabledMarket = false;
   },
   getLastPrice: () => {
     const el = document.querySelector('[class*="Ticker_last-price"]');
