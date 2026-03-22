@@ -47,7 +47,8 @@ const injectBlofinSLCheckboxes = () => {
 
 const Blofin = {
   name: 'Blofin',
-  onTick: async (settings) => {
+  onTick: async (context) => {
+    const { settings } = context;
     injectBlofinSLCheckboxes();
 
     // 1. Auto Market Logic
@@ -99,6 +100,33 @@ const Blofin = {
       } finally {
         isAutoEnablingTPSL = false;
       }
+    }
+
+    // 3. Auto SL Paste Logic
+    const { operationMode, minPrice, maxPrice } = context;
+    if (!operationMode) return;
+    
+    const targetSlPrice = operationMode === 'long' ? minPrice : maxPrice;
+    if (targetSlPrice === null || isNaN(targetSlPrice) || targetSlPrice <= 0) return;
+
+    const slInput = document.getElementById('TPSLOrderWidget-slTriggerPrice');
+    if (!slInput) return;
+
+    const currentInputValue = parseFloat(slInput.value);
+
+    // Only update if it's empty OR out of sync with our calculated target
+    if (slInput.value === '' || (currentInputValue !== targetSlPrice)) {
+      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+      if (nativeInputValueSetter) {
+        nativeInputValueSetter.call(slInput, targetSlPrice.toString());
+      } else {
+        slInput.value = targetSlPrice.toString();
+      }
+      
+      slInput.dispatchEvent(new Event('input', { bubbles: true }));
+      slInput.dispatchEvent(new Event('change', { bubbles: true }));
+      slInput.dispatchEvent(new Event('blur', { bubbles: true }));
+      console.log(`[Auto SL Calc] Updated Blofin SL to ${targetSlPrice}`);
     }
   },
   onNavigation: () => {

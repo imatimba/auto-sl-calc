@@ -47,10 +47,6 @@ function mainLoop() {
       }
     }
 
-    if (parser.onTick) {
-      parser.onTick(settings);
-    }
-
     // Use default value if undefined (10 minutes = 600 seconds)
     const secondsMemory = settings.secondsMemory !== undefined ? settings.secondsMemory : 600;
 
@@ -60,6 +56,20 @@ function mainLoop() {
     const operationMode = parser.getOperationMode();
 
     const { minPrice, maxPrice } = updatePriceHistory(lastPrice, secondsMemory);
+
+    const context = {
+      settings,
+      lastPrice,
+      minPrice,
+      maxPrice,
+      leverage,
+      availBalance,
+      operationMode
+    };
+
+    if (parser.onTick) {
+      parser.onTick(context);
+    }
 
     console.log(`=== Auto SL Calc Data (${parser.name || 'Unknown'}) ===`);
     console.log('Last Price:', lastPrice);
