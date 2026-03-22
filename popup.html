@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Auto SL Calc</title>
   <link rel="stylesheet" href="popup.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
+
 <body>
   <div class="container">
     <div class="header">
       <div class="title-row">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
         </svg>
         <h1>Auto SL Calc</h1>
       </div>
@@ -20,7 +22,7 @@
 
     <div class="card">
       <div class="setting-group row-group">
-        <label for="enabledToggle" class="setting-label">Enable Main Loop</label>
+        <label for="enabledToggle" class="setting-label">Enable Extension</label>
         <label class="switch">
           <input type="checkbox" id="enabledToggle">
           <span class="slider round"></span>
@@ -46,6 +48,23 @@
           <span class="suffix">min</span>
         </div>
       </div>
+
+      <div class="divider"></div>
+
+      <div class="setting-group">
+        <h2 class="qol-title"
+          style="font-size: 14px; font-weight: 600; color: var(--accent-color); margin-bottom: 4px;">Site Specific QoL
+        </h2>
+
+        <div class="setting-group row-group">
+          <label for="autoSLToggle" class="setting-label">Auto-enable SL (BingX Std)</label>
+          <label class="switch">
+            <input type="checkbox" id="autoSLToggle">
+            <span class="slider round"></span>
+          </label>
+        </div>
+        <p class="setting-desc">Automatically enables Stop Loss and switches to USDT mode upon load.</p>
+      </div>
     </div>
 
     <button id="saveBtn" class="primary-btn">Save Settings</button>
@@ -53,4 +72,5 @@
   </div>
   <script src="popup.js"></script>
 </body>
+
 </html>

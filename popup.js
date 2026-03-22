@@ -2,12 +2,16 @@ document.addEventListener('DOMContentLoaded', () => {
   const enabledToggle = document.getElementById('enabledToggle');
   const riskPercentInput = document.getElementById('riskPercent');
   const minutesMemoryInput = document.getElementById('minutesMemory');
+  const autoSLToggle = document.getElementById('autoSLToggle');
   const saveBtn = document.getElementById('saveBtn');
   const statusMsg = document.getElementById('statusMsg');
 
   // Load existing settings
-  chrome.storage.local.get(['enabled', 'riskPercent', 'secondsMemory'], (result) => {
+  chrome.storage.local.get(['enabled', 'riskPercent', 'secondsMemory', 'autoEnableSLStandard'], (result) => {
     enabledToggle.checked = result.enabled || false;
+    
+    // Default to true for the auto-enable QoL feature if unset!
+    autoSLToggle.checked = result.autoEnableSLStandard !== undefined ? result.autoEnableSLStandard : true;
     
     // Convert stored float (e.g. 0.005) to display percentage (0.5)
     if (result.riskPercent !== undefined) {
@@ -23,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   saveBtn.addEventListener('click', () => {
     const enabled = enabledToggle.checked;
+    const autoEnableSLStandard = autoSLToggle.checked;
     const riskPercentRaw = parseFloat(riskPercentInput.value);
     const minutesMemoryRaw = parseFloat(minutesMemoryInput.value);
 
@@ -37,7 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.local.set({
       enabled: enabled,
       riskPercent: _riskPercent,
-      secondsMemory: _secondsMemory
+      secondsMemory: _secondsMemory,
+      autoEnableSLStandard: autoEnableSLStandard
     }, () => {
       showStatus('Settings saved successfully', true);
     });

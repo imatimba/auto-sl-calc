@@ -1,4 +1,43 @@
 let priceHistory = []; // Array of { price: number, timestamp: number }
+let hasAutoEnabledSL = false;
+let isAutoEnablingSL = false;
+let currentUrl = window.location.href;
+
+async function autoEnableSLStandardRoutine() {
+  if (hasAutoEnabledSL || isAutoEnablingSL) return;
+  isAutoEnablingSL = true;
+
+  try {
+    const slWrapper = Array.from(document.querySelectorAll('.futures-sl-switch-wrap'))
+      .find(el => (el.textContent || '').includes('Stop Loss') || (el.textContent || '').includes('Stop'));
+
+    if (!slWrapper) return;
+
+    const switchEl = slWrapper.querySelector('.bx-switch');
+    if (switchEl && !switchEl.classList.contains('bx-switch--checked')) {
+      switchEl.click();
+      await new Promise(r => setTimeout(r, 1000));
+    }
+
+    const dropdownWrapper = document.querySelector('.ti-suffix-unit-wrap');
+    if (dropdownWrapper) {
+      const currentUnit = dropdownWrapper.querySelector('.r-text')?.textContent.trim();
+      if (currentUnit !== 'USDT') {
+        const usdtOption = Array.from(dropdownWrapper.querySelectorAll('li'))
+          .find(li => (li.textContent || '').includes('USDT'));
+        if (usdtOption) {
+          usdtOption.click();
+          hasAutoEnabledSL = true;
+        }
+      } else {
+        hasAutoEnabledSL = true;
+      }
+    }
+  } finally {
+    isAutoEnablingSL = false;
+  }
+}
+
 
 function parseNumber(str) {
   if (!str) return null;
@@ -36,9 +75,10 @@ const BingXPerpetual = {
 
 const BingXStandard = {
   getLastPrice: () => {
-    const el = document.querySelector('.price.din-pro.short .dynamic-text') || 
-               document.querySelector('.price.din-pro.long .dynamic-text') || 
-               document.querySelector('.price.din-pro .dynamic-text'); // Fallbacks just in case
+    // We target .btn .dynamic-text to avoid fetching the hidden fiat tooltip price which appears first in the DOM
+    const el = document.querySelector('.price.din-pro.short .btn .dynamic-text') || 
+               document.querySelector('.price.din-pro.long .btn .dynamic-text') || 
+               document.querySelector('.price.din-pro .btn .dynamic-text'); // Fallbacks just in case
     return el ? parseNumber(el.innerText) : null;
   },
   getLeverage: () => {
@@ -114,14 +154,25 @@ function updatePriceHistory(currentPrice, secondsMemory) {
 }
 
 function mainLoop() {
-  chrome.storage.local.get(['enabled', 'riskPercent', 'secondsMemory'], (settings) => {
+  chrome.storage.local.get(['enabled', 'riskPercent', 'secondsMemory', 'autoEnableSLStandard'], (settings) => {
     if (!settings.enabled) return; // Only run if extension is toggled ON
+
+    if (window.location.href !== currentUrl) {
+      currentUrl = window.location.href;
+      hasAutoEnabledSL = false; // Reset on navigation
+    }
 
     const parser = getExchangeParser();
     if (!parser) return;
 
     // Use default value if undefined (10 minutes = 600 seconds)
     const secondsMemory = settings.secondsMemory !== undefined ? settings.secondsMemory : 600;
+
+    // QoL Features
+    const autoEnableSLStandard = settings.autoEnableSLStandard !== undefined ? settings.autoEnableSLStandard : true;
+    if (autoEnableSLStandard && parser === BingXStandard) {
+      autoEnableSLStandardRoutine(); // Non-blocking async call
+    }
 
     const lastPrice = parser.getLastPrice();
     const leverage = parser.getLeverage();
