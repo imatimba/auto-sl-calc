@@ -21,7 +21,13 @@
         "https://bingx.com/*/futures/forward/*",
         "https://blofin.com/futures/*"
       ],
-      "js": ["content.js"]
+      "js": [
+        "utils.js",
+        "parsers/bingxPerpetual.js",
+        "parsers/bingxStandard.js",
+        "parsers/blofin.js",
+        "content.js"
+      ]
     }
   ]
 }
