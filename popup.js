@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const autoEnableSLStandardInput = document.getElementById('autoSLToggle');
   const autoMarketBlofinInput = document.getElementById('autoMarketBlofin');
   const autoTPSLBlofinInput = document.getElementById('autoTPSLBlofin');
+  const autoCalcMarginInput = document.getElementById('autoCalcMargin');
   const saveBtn = document.getElementById('saveBtn');
   const statusMsg = document.getElementById('statusMsg');
 
@@ -15,9 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
     'secondsMemory',
     'autoEnableSLStandard',
     'autoMarketBlofin',
-    'autoTPSLBlofin'
+    'autoTPSLBlofin',
+    'autoCalcMargin'
   ], (result) => {
     enabledToggle.checked = result.enabled || false;
+    autoCalcMarginInput.checked = result.autoCalcMargin !== undefined ? result.autoCalcMargin : true;
     
     // Default to true for the auto-enable QoL feature if unset!
     autoEnableSLStandardInput.checked = result.autoEnableSLStandard !== undefined ? result.autoEnableSLStandard : true;
@@ -39,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   saveBtn.addEventListener('click', () => {
     const enabled = enabledToggle.checked;
+    const autoCalcMargin = autoCalcMarginInput.checked;
     const autoEnableSLStandard = autoEnableSLStandardInput.checked;
     const autoMarketBlofin = autoMarketBlofinInput.checked;
     const autoTPSLBlofin = autoTPSLBlofinInput.checked;
@@ -59,7 +63,8 @@ document.addEventListener('DOMContentLoaded', () => {
       secondsMemory: _secondsMemory,
       autoEnableSLStandard: autoEnableSLStandard,
       autoMarketBlofin: autoMarketBlofin,
-      autoTPSLBlofin: autoTPSLBlofin
+      autoTPSLBlofin: autoTPSLBlofin,
+      autoCalcMargin: autoCalcMargin
     }, () => {
       showStatus('Settings saved successfully', true);
     });

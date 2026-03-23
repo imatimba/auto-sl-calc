@@ -128,6 +128,38 @@ const Blofin = {
       slInput.dispatchEvent(new Event('blur', { bubbles: true }));
       console.log(`[Auto SL Calc] Updated Blofin SL to ${targetSlPrice}`);
     }
+
+    // 4. Auto Margin Paste Logic
+    const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
+    const { marginFlatAmount } = context;
+
+    if (autoCalcMargin && marginFlatAmount > 0) {
+      // Blofin uses different inputs for Market and Limit, but they share the same ID structure
+      // We check for both and update the one that is visible or available.
+      const marginInputs = [
+        document.getElementById('future-market-amount'),
+        document.getElementById('future-limit-amount')
+      ].filter(i => i !== null);
+
+      // Blofin shows "Cost (USDT)" or "Costo (USDT)" in this stable ID
+      const unitTypeEl = document.getElementById('order-unit-type');
+      const unitLabel = unitTypeEl ? (unitTypeEl.textContent || '') : '';
+
+      marginInputs.forEach(marginInput => {
+        if (unitLabel.includes('Costo') || unitLabel.includes('Cost')) {
+          const currentMarginValue = parseFloat(marginInput.value);
+          if (marginInput.value === '' || Math.abs(currentMarginValue - marginFlatAmount) > 0.01) {
+            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+            if (nativeInputValueSetter) {
+              nativeInputValueSetter.call(marginInput, marginFlatAmount.toFixed(2));
+              marginInput.dispatchEvent(new Event('input', { bubbles: true }));
+              marginInput.dispatchEvent(new Event('change', { bubbles: true }));
+              console.log(`[Auto SL Calc] Updated Blofin Amount to ${marginFlatAmount.toFixed(2)}`);
+            }
+          }
+        }
+      });
+    }
   },
   onNavigation: () => {
     hasAutoEnabledMarket = false;

@@ -28,7 +28,7 @@ const BingXPerpetual = {
     return null;
   },
   onTick: async (context) => {
-    const { operationMode, minPrice, maxPrice } = context;
+    const { settings, operationMode, minPrice, maxPrice } = context;
 
     // We only Auto SL if we have a valid operation mode
     if (!operationMode) return;
@@ -55,6 +55,33 @@ const BingXPerpetual = {
         nativeInputValueSetter.call(slInput, targetSlPrice.toString());
         slInput.dispatchEvent(new Event('input', { bubbles: true }));
         console.log(`[Auto SL Calc] Updated BingX Perpetual SL to ${targetSlPrice}`);
+      }
+    }
+
+    // 2. Auto Margin Paste Logic
+    const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
+    const { marginFlatAmount } = context;
+
+    if (autoCalcMargin && marginFlatAmount > 0) {
+      // Find the main Cost/Amount/Value input. 
+      // It's usually a tl-input-inner inside a ti-outer-wrap, but NOT inside an sltp-wrapper (which are TP/SL).
+      const allInputs = Array.from(document.querySelectorAll('.ti-outer-wrap input.tl-input-inner'));
+      const marginInput = allInputs.find(i => 
+        !i.closest('.sltp-wrapper') && // Exclude TP/SL inputs
+        (i.placeholder === 'Cost' || (i.placeholder && i.placeholder.includes('Cost')))
+      );
+
+      if (marginInput) {
+        const currentMarginValue = parseFloat(marginInput.value);
+        // We use a small epsilon for float comparison just in case
+        if (marginInput.value === '' || Math.abs(currentMarginValue - marginFlatAmount) > 0.01) {
+          const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+          if (nativeInputValueSetter) {
+            nativeInputValueSetter.call(marginInput, marginFlatAmount.toFixed(2));
+            marginInput.dispatchEvent(new Event('input', { bubbles: true }));
+            console.log(`[Auto SL Calc] Updated BingX Perpetual Margin to ${marginFlatAmount.toFixed(2)}`);
+          }
+        }
       }
     }
   }

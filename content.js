@@ -1,3 +1,4 @@
+const DEBUG = false;
 let priceHistory = []; // Array of { price: number, timestamp: number }
 let currentUrl = window.location.href;
 
@@ -34,7 +35,7 @@ function updatePriceHistory(currentPrice, secondsMemory) {
 }
 
 function mainLoop() {
-  chrome.storage.local.get(['enabled', 'riskPercent', 'secondsMemory', 'autoEnableSLStandard', 'autoMarketBlofin', 'autoTPSLBlofin'], (settings) => {
+  chrome.storage.local.get(['enabled', 'riskPercent', 'secondsMemory', 'autoEnableSLStandard', 'autoMarketBlofin', 'autoTPSLBlofin', 'autoCalcMargin'], (settings) => {
     if (!settings.enabled) return; // Only run if extension is toggled ON
 
     const parser = getExchangeParser();
@@ -42,20 +43,44 @@ function mainLoop() {
 
     if (window.location.href !== currentUrl) {
       currentUrl = window.location.href;
+      priceHistory = []; // Reset history when changing pair/exchange
       if (parser.onNavigation) {
         parser.onNavigation();
       }
     }
 
-    // Use default value if undefined (10 minutes = 600 seconds)
-    const secondsMemory = settings.secondsMemory !== undefined ? settings.secondsMemory : 600;
+    // Use default value if undefined (15 minutes = 900 seconds)
+    const secondsMemory = settings.secondsMemory !== undefined ? settings.secondsMemory : 900;
 
     const lastPrice = parser.getLastPrice();
     const leverage = parser.getLeverage();
     const availBalance = parser.getAvailBalance();
+    const riskFlatAmount = settings.riskPercent !== undefined ? settings.riskPercent * availBalance : 0.005 * availBalance;
     const operationMode = parser.getOperationMode();
 
+
     const { minPrice, maxPrice } = updatePriceHistory(lastPrice, secondsMemory);
+    
+    // Calculate SL percentage distance
+    let slDistancePercent = 0;
+    if (operationMode === 'long') {
+      slDistancePercent = lastPrice > minPrice ? ((lastPrice - minPrice) / lastPrice) * 100 : 0;
+    } else if (operationMode === 'short') {
+      slDistancePercent = maxPrice > lastPrice ? ((maxPrice - lastPrice) / lastPrice) * 100 : 0;
+    }
+
+    // Calculate required margin to hit riskFlatAmount
+    let marginFlatAmount = 0;
+    const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
+
+    if (autoCalcMargin && slDistancePercent > 0 && leverage > 0) {
+      marginFlatAmount = riskFlatAmount / ((slDistancePercent / 100) * leverage);
+      
+      // Cap at available balance
+      if (marginFlatAmount > availBalance) {
+        marginFlatAmount = availBalance;
+      }
+    }
 
     const context = {
       settings,
@@ -64,6 +89,9 @@ function mainLoop() {
       maxPrice,
       leverage,
       availBalance,
+      riskFlatAmount,
+      slDistancePercent,
+      marginFlatAmount,
       operationMode
     };
 
@@ -71,15 +99,20 @@ function mainLoop() {
       parser.onTick(context);
     }
 
-    console.log(`=== Auto SL Calc Data (${parser.name || 'Unknown'}) ===`);
-    console.log('Last Price:', lastPrice);
-    console.log(`Min Price (${Math.round(secondsMemory/60)}m):`, minPrice);
-    console.log(`Max Price (${Math.round(secondsMemory/60)}m):`, maxPrice);
-    console.log('Leverage:', leverage);
-    console.log('Available Balance (Int):', availBalance);
-    console.log('Operation Mode:', operationMode);
+    if (DEBUG) {
+      console.log(`=== Auto SL Calc Data (${parser.name || 'Unknown'}) ===`);
+      console.log('Last Price:', lastPrice);
+      console.log(`Min Price (${Math.round(secondsMemory/60)}m):`, minPrice);
+      console.log(`Max Price (${Math.round(secondsMemory/60)}m):`, maxPrice);
+      console.log('Leverage:', leverage);
+      console.log('Available Balance:', availBalance);
+      console.log('Risk Amount ($):', riskFlatAmount.toFixed(2));
+      console.log('SL distance (%):', slDistancePercent.toFixed(4));
+      console.log('REQUIRED MARGIN ($):', marginFlatAmount.toFixed(2));
+      console.log('Operation Mode:', operationMode);
+    }
   });
 }
 
 // Start main loop every 1000ms
-setInterval(mainLoop, 1000);
+setInterval(mainLoop, 500);

@@ -79,6 +79,36 @@ const BingXStandard = {
       slInput.dispatchEvent(new Event('blur', { bubbles: true }));
       console.log(`[Auto SL Calc] Updated BingX Standard SL to ${targetSlPrice}`);
     }
+
+    // 2. Auto Margin Paste Logic
+    const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
+    const { marginFlatAmount } = context;
+
+    if (autoCalcMargin && marginFlatAmount > 0) {
+      // Find the main Margin input by using the slider as a structural anchor.
+      // Both the input and the slider are inside .futures-base-item-wrap.
+      const slider = document.querySelector('.slider');
+      const container = slider ? slider.closest('.futures-base-item-wrap') : null;
+      // We specifically target .futures-base-item to avoid .futures-mb8 (which is TP/SL)
+      // and .ti-outer-wrap (which might be used elsewhere).
+      const inputs = container ? Array.from(container.querySelectorAll('.futures-base-item input.tl-input-inner')) : [];
+      // Margin input is always the last one in this filtered list (after Trigger Price if present)
+      const marginInput = inputs.length > 0 ? inputs[inputs.length - 1] : null;
+
+      if (marginInput) {
+        const currentMarginValue = parseFloat(marginInput.value);
+        // Using same threshold for comparison
+        if (marginInput.value === '' || Math.abs(currentMarginValue - marginFlatAmount) > 0.01) {
+          const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
+          if (nativeInputValueSetter) {
+            nativeInputValueSetter.call(marginInput, marginFlatAmount.toFixed(2));
+            marginInput.dispatchEvent(new Event('input', { bubbles: true }));
+            marginInput.dispatchEvent(new Event('change', { bubbles: true }));
+            console.log(`[Auto SL Calc] Updated BingX Standard Margin to ${marginFlatAmount.toFixed(2)}`);
+          }
+        }
+      }
+    }
   },
   onNavigation: () => {
     hasAutoEnabledSL = false; // Reset on tracking a new route
