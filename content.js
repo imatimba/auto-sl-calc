@@ -95,8 +95,15 @@ function mainLoop() {
       operationMode
     };
 
-    if (parser.onTick) {
-      parser.onTick(context);
+    // Dispatch lifecycle hooks independently
+    if (parser.onQoL) {
+      parser.onQoL(context);
+    }
+    if (parser.onSLPaste) {
+      parser.onSLPaste(context);
+    }
+    if (parser.onMarginPaste) {
+      parser.onMarginPaste(context);
     }
 
     if (DEBUG) {

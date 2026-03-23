@@ -47,120 +47,6 @@ const injectBlofinSLCheckboxes = () => {
 
 const Blofin = {
   name: 'Blofin',
-  onTick: async (context) => {
-    const { settings } = context;
-    injectBlofinSLCheckboxes();
-
-    // 1. Auto Market Logic
-    const autoMarketBlofin = settings.autoMarketBlofin !== undefined ? settings.autoMarketBlofin : true;
-    let isMarketActive = false;
-    
-    const marketLi = document.querySelector('li#market');
-    if (marketLi) {
-      isMarketActive = marketLi.className.includes('after:bu-bg-dark-primary');
-    }
-
-    if (autoMarketBlofin && !hasAutoEnabledMarket && !isAutoEnablingMarket) {
-      isAutoEnablingMarket = true;
-      try {
-        if (marketLi && !isMarketActive) {
-          marketLi.click();
-          // We don't set hasAutoEnabledMarket yet, we wait for it to be active in next ticks
-        } else if (marketLi && isMarketActive) {
-          hasAutoEnabledMarket = true;
-        }
-      } finally {
-        isAutoEnablingMarket = false;
-      }
-    }
-
-    // 2. Auto TP/SL Logic
-    // If autoMarket is enabled, wait until it's finished (tab is active) before doing TP/SL
-    if (autoMarketBlofin && !isMarketActive) return;
-
-    const autoTPSLBlofin = settings.autoTPSLBlofin !== undefined ? settings.autoTPSLBlofin : true;
-    if (autoTPSLBlofin && !hasAutoEnabledTPSL && !isAutoEnablingTPSL) {
-      isAutoEnablingTPSL = true;
-      try {
-        const tpSlCheckbox = document.getElementById('bui-checkbox-TP/SL');
-        if (tpSlCheckbox) {
-          if (!tpSlCheckbox.checked) {
-            const label = tpSlCheckbox.closest('label');
-            if (label) {
-              label.click();
-              hasAutoEnabledTPSL = true;
-            } else {
-              tpSlCheckbox.click();
-              hasAutoEnabledTPSL = true;
-            }
-          } else {
-            hasAutoEnabledTPSL = true;
-          }
-        }
-      } finally {
-        isAutoEnablingTPSL = false;
-      }
-    }
-
-    // 3. Auto SL Paste Logic
-    const { operationMode, minPrice, maxPrice } = context;
-    if (!operationMode) return;
-    
-    const targetSlPrice = operationMode === 'long' ? minPrice : maxPrice;
-    if (targetSlPrice === null || isNaN(targetSlPrice) || targetSlPrice <= 0) return;
-
-    const slInput = document.getElementById('TPSLOrderWidget-slTriggerPrice');
-    if (!slInput) return;
-
-    const currentInputValue = parseFloat(slInput.value);
-
-    // Only update if it's empty OR out of sync with our calculated target
-    if (slInput.value === '' || (currentInputValue !== targetSlPrice)) {
-      const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-      if (nativeInputValueSetter) {
-        nativeInputValueSetter.call(slInput, targetSlPrice.toString());
-      } else {
-        slInput.value = targetSlPrice.toString();
-      }
-      
-      slInput.dispatchEvent(new Event('input', { bubbles: true }));
-      slInput.dispatchEvent(new Event('change', { bubbles: true }));
-      slInput.dispatchEvent(new Event('blur', { bubbles: true }));
-      console.log(`[Auto SL Calc] Updated Blofin SL to ${targetSlPrice}`);
-    }
-
-    // 4. Auto Margin Paste Logic
-    const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
-    const { marginFlatAmount } = context;
-
-    if (autoCalcMargin && marginFlatAmount > 0) {
-      // Blofin uses different inputs for Market and Limit, but they share the same ID structure
-      // We check for both and update the one that is visible or available.
-      const marginInputs = [
-        document.getElementById('future-market-amount'),
-        document.getElementById('future-limit-amount')
-      ].filter(i => i !== null);
-
-      // Blofin shows "Cost (USDT)" or "Costo (USDT)" in this stable ID
-      const unitTypeEl = document.getElementById('order-unit-type');
-      const unitLabel = unitTypeEl ? (unitTypeEl.textContent || '') : '';
-
-      marginInputs.forEach(marginInput => {
-        if (unitLabel.includes('Costo') || unitLabel.includes('Cost')) {
-          const currentMarginValue = parseFloat(marginInput.value);
-          if (marginInput.value === '' || Math.abs(currentMarginValue - marginFlatAmount) > 0.01) {
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype, 'value').set;
-            if (nativeInputValueSetter) {
-              nativeInputValueSetter.call(marginInput, marginFlatAmount.toFixed(2));
-              marginInput.dispatchEvent(new Event('input', { bubbles: true }));
-              marginInput.dispatchEvent(new Event('change', { bubbles: true }));
-              console.log(`[Auto SL Calc] Updated Blofin Amount to ${marginFlatAmount.toFixed(2)}`);
-            }
-          }
-        }
-      });
-    }
-  },
   onNavigation: () => {
     hasAutoEnabledMarket = false;
     hasAutoEnabledTPSL = false;
@@ -199,5 +85,100 @@ const Blofin = {
     if (longCb && longCb.checked) return 'long';
     if (shortCb && shortCb.checked) return 'short';
     return null;
+  },
+
+  onQoL: async (context) => {
+    const { settings } = context;
+    injectBlofinSLCheckboxes();
+
+    // 1. Auto Market Logic
+    const autoMarketBlofin = settings.autoMarketBlofin !== undefined ? settings.autoMarketBlofin : true;
+    let isMarketActive = false;
+
+    const marketLi = document.querySelector('li#market');
+    if (marketLi) {
+      isMarketActive = marketLi.className.includes('after:bu-bg-dark-primary');
+    }
+
+    if (autoMarketBlofin && !hasAutoEnabledMarket && !isAutoEnablingMarket) {
+      isAutoEnablingMarket = true;
+      try {
+        if (marketLi && !isMarketActive) {
+          marketLi.click();
+        } else if (marketLi && isMarketActive) {
+          hasAutoEnabledMarket = true;
+        }
+      } finally {
+        isAutoEnablingMarket = false;
+      }
+    }
+
+    // 2. Auto TP/SL Logic
+    // If autoMarket is enabled, wait until it's finished (tab is active) before doing TP/SL
+    if (autoMarketBlofin && !isMarketActive) return;
+
+    const autoTPSLBlofin = settings.autoTPSLBlofin !== undefined ? settings.autoTPSLBlofin : true;
+    if (autoTPSLBlofin && !hasAutoEnabledTPSL && !isAutoEnablingTPSL) {
+      isAutoEnablingTPSL = true;
+      try {
+        const tpSlCheckbox = document.getElementById('bui-checkbox-TP/SL');
+        if (tpSlCheckbox) {
+          if (!tpSlCheckbox.checked) {
+            const label = tpSlCheckbox.closest('label');
+            if (label) {
+              label.click();
+              hasAutoEnabledTPSL = true;
+            } else {
+              tpSlCheckbox.click();
+              hasAutoEnabledTPSL = true;
+            }
+          } else {
+            hasAutoEnabledTPSL = true;
+          }
+        }
+      } finally {
+        isAutoEnablingTPSL = false;
+      }
+    }
+  },
+
+  onSLPaste: (context) => {
+    const { operationMode, minPrice, maxPrice } = context;
+    if (!operationMode) return;
+
+    const targetSlPrice = operationMode === 'long' ? minPrice : maxPrice;
+    if (targetSlPrice === null || isNaN(targetSlPrice) || targetSlPrice <= 0) return;
+
+    const slInput = document.getElementById('TPSLOrderWidget-slTriggerPrice');
+    if (!slInput) return;
+
+    const currentInputValue = parseFloat(slInput.value);
+    if (slInput.value === '' || (currentInputValue !== targetSlPrice)) {
+      setInputValue(slInput, targetSlPrice.toString(), ['input', 'change', 'blur']);
+    }
+  },
+
+  onMarginPaste: (context) => {
+    const { settings, marginFlatAmount } = context;
+    const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
+    if (!autoCalcMargin || marginFlatAmount <= 0) return;
+
+    const marginInputs = [
+      document.getElementById('future-market-amount'),
+      document.getElementById('future-limit-amount')
+    ].filter(i => i !== null);
+
+    // Blofin shows "Cost (USDT)" or "Costo (USDT)" in this stable ID
+    const unitTypeEl = document.getElementById('order-unit-type');
+    const unitLabel = unitTypeEl ? (unitTypeEl.textContent || '') : '';
+
+    marginInputs.forEach(marginInput => {
+      if (unitLabel.includes('Costo') || unitLabel.includes('Cost')) {
+        const currentMarginValue = parseFloat(marginInput.value);
+        if (marginInput.value === '' || Math.abs(currentMarginValue - marginFlatAmount) > 0.01) {
+          setInputValue(marginInput, marginFlatAmount.toFixed(2));
+        }
+      }
+    });
   }
 };
