@@ -108,6 +108,17 @@ h1 {
   align-items: center;
 }
 
+/* Hide native spinners */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 input[type="number"] {
   width: 100%;
   background-color: var(--input-bg);
@@ -121,6 +132,13 @@ input[type="number"] {
   transition: all 0.2s ease;
 }
 
+.compact-input {
+  width: 105px !important;
+  text-align: right;
+  padding-right: 60px !important;
+  padding-left: 8px !important;
+}
+
 input[type="number"]:focus {
   border-color: var(--primary-color);
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
@@ -128,10 +146,44 @@ input[type="number"]:focus {
 
 .suffix {
   position: absolute;
-  right: 12px;
+  right: 10px;
   color: var(--text-muted);
-  font-size: 14px;
+  font-size: 13px;
   pointer-events: none;
+}
+
+/* Custom Spinners */
+.custom-spinners {
+  display: flex;
+  flex-direction: column;
+  position: absolute;
+  right: 32px;
+  height: 28px;
+  border-left: 1px solid var(--border-color);
+  justify-content: center;
+}
+
+.spin-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  height: 14px;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.spin-btn:hover {
+  color: var(--text-main);
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.spin-btn svg {
+  width: 12px;
+  height: 12px;
 }
 
 /* Toggle Switch Styles */
@@ -190,26 +242,44 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-.primary-btn {
-  background-color: var(--primary-color);
-  color: white;
+/* Icon Button Styles */
+.icon-btn {
+  background: transparent;
   border: none;
-  border-radius: 8px;
-  padding: 10px;
-  font-size: 14px;
-  font-weight: 500;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  font-family: 'Inter', sans-serif;
-  width: 100%;
+  color: var(--text-muted);
+  padding: 8px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.primary-btn:hover {
-  background-color: var(--primary-hover);
+.icon-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-main);
 }
 
-.primary-btn:active {
-  transform: scale(0.98);
+.icon-btn:active {
+  transform: scale(0.95);
+}
+
+.icon-btn .save-icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* Lit up state for unsaved changes */
+.icon-btn.has-changes {
+  color: var(--accent-color);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
 }
 
 .status-msg {
@@ -245,8 +315,42 @@ input:checked + .slider:before {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-weight: 600;
+  margin: 0;
+}
+
+/* Accordion Specific */
+.accordion-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  padding: 8px 0;
   border-bottom: 1px dashed var(--border-color);
-  padding-bottom: 4px;
+  user-select: none;
+}
+
+.accordion-header .chevron {
+  transition: transform 0.2s ease;
+  color: var(--text-muted);
+}
+
+.accordion.active .accordion-header .chevron {
+  transform: rotate(180deg);
+}
+
+.accordion.active .accordion-header {
+  border-bottom: none;
+}
+
+.accordion-content {
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 8px;
+}
+
+.accordion.active .accordion-content {
+  display: flex;
 }
 
 .exchange-feature {

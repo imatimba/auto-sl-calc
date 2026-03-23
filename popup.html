@@ -10,14 +10,26 @@
 
 <body>
   <div class="container">
-    <div class="header">
-      <div class="title-row">
-        <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-        </svg>
-        <h1>Auto SL Calc</h1>
+    <div class="header" style="flex-direction: row; justify-content: space-between; align-items: center;">
+      <div class="header-left" style="display: flex; flex-direction: column; gap: 4px;">
+        <div class="title-row">
+          <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+          <h1>Auto SL Calc</h1>
+        </div>
+        <p class="subtitle">Futures Stop Loss Calculator</p>
       </div>
-      <p class="subtitle">Futures Stop Loss Calculator</p>
+      <div class="header-right">
+        <button id="saveBtn" class="icon-btn" title="Save Settings">
+          <svg class="save-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+            <polyline points="17 21 17 13 7 13 7 21"></polyline>
+            <polyline points="7 3 7 8 15 8"></polyline>
+          </svg>
+        </button>
+      </div>
     </div>
 
     <div class="card">
@@ -32,8 +44,10 @@
       <div class="setting-group row-group">
         <div class="label-with-tooltip">
           <label for="autoCalcMargin" class="setting-label">Auto-Calc Margin</label>
-          <div class="tooltip-icon" title="Automatically calculates the required margin to maintain your risk amount based on SL distance.">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
+          <div class="tooltip-icon"
+            title="Automatically calculates the required margin to maintain your risk amount based on SL distance.">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="15" height="15">
               <circle cx="12" cy="12" r="10"></circle>
               <line x1="12" y1="16" x2="12" y2="11"></line>
               <line x1="12" y1="8" x2="12.01" y2="8"></line>
@@ -48,20 +62,66 @@
 
       <div class="divider"></div>
 
-      <div class="setting-group">
-        <label for="riskPercent" class="setting-label">Risk Percentage (%)</label>
-        <p class="setting-desc">Percentage of total available balance to risk.</p>
+      <div class="setting-group row-group">
+        <div class="label-with-tooltip">
+          <label for="riskPercent" class="setting-label">Risk Percentage</label>
+          <div class="tooltip-icon" title="Percentage of total available balance to risk.">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="15" height="15">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="11"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+        </div>
         <div class="input-wrapper">
-          <input type="number" id="riskPercent" step="0.1" min="0.1" value="0.5">
+          <input type="number" id="riskPercent" step="0.1" min="0.1" value="0.5" class="compact-input">
+          <div class="custom-spinners">
+            <button type="button" class="spin-btn spin-up" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="spin-btn spin-down" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
           <span class="suffix">%</span>
         </div>
       </div>
 
-      <div class="setting-group">
-        <label for="minutesMemory" class="setting-label">Price Memory Window</label>
-        <p class="setting-desc">Minutes to keep min/max prices in memory.</p>
+      <div class="setting-group row-group">
+        <div class="label-with-tooltip">
+          <label for="minutesMemory" class="setting-label">Price Memory</label>
+          <div class="tooltip-icon" title="Minutes to keep min/max prices in memory.">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="15" height="15">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="11"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+        </div>
         <div class="input-wrapper">
-          <input type="number" id="minutesMemory" step="1" min="1" value="10">
+          <input type="number" id="minutesMemory" step="1" min="1" value="10" class="compact-input">
+          <div class="custom-spinners">
+            <button type="button" class="spin-btn spin-up" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="spin-btn spin-down" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
           <span class="suffix">min</span>
         </div>
       </div>
@@ -73,67 +133,86 @@
           style="font-size: 14px; font-weight: 600; color: var(--accent-color); margin-bottom: 8px;">Site Specific QoL
         </h2>
 
-        <div class="exchange-group">
-          <h3 class="exchange-title">BingX Standard</h3>
-          <div class="setting-group row-group exchange-feature">
-            <div class="label-with-tooltip">
-              <label for="autoSLToggle" class="setting-label">Auto-enable SL</label>
-              <div class="tooltip-icon"
-                title="Automatically enables Stop Loss and switches to USDT mode upon load of BingX Standard.">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="11"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
+        <div class="exchange-group accordion">
+          <div class="accordion-header">
+            <h3 class="exchange-title">BingX Standard</h3>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+              height="16">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+          <div class="accordion-content">
+            <div class="setting-group row-group exchange-feature">
+              <div class="label-with-tooltip">
+                <label for="autoSLToggle" class="setting-label">Auto enable SL</label>
+                <div class="tooltip-icon"
+                  title="Automatically enables Stop Loss and switches to USDT mode upon load of BingX Standard.">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="15" height="15">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="11"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                </div>
               </div>
+              <label class="switch">
+                <input type="checkbox" id="autoSLToggle">
+                <span class="slider round"></span>
+              </label>
             </div>
-            <label class="switch">
-              <input type="checkbox" id="autoSLToggle">
-              <span class="slider round"></span>
-            </label>
           </div>
         </div>
 
-        <div class="exchange-group" style="margin-top: 12px;">
-          <h3 class="exchange-title">Blofin</h3>
-          <div class="setting-group row-group exchange-feature">
-            <div class="label-with-tooltip">
-              <label for="autoMarketBlofin" class="setting-label">Auto Market Order</label>
-              <div class="tooltip-icon" title="Automatically selects the Market order type upon loading the trading pair.">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="11"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
-              </div>
-            </div>
-            <label class="switch">
-              <input type="checkbox" id="autoMarketBlofin">
-              <span class="slider round"></span>
-            </label>
+        <div class="exchange-group accordion" style="margin-top: 4px;">
+          <div class="accordion-header">
+            <h3 class="exchange-title">Blofin</h3>
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16"
+              height="16">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
           </div>
-
-          <div class="setting-group row-group exchange-feature" style="margin-top: 8px;">
-            <div class="label-with-tooltip">
-              <label for="autoTPSLBlofin" class="setting-label">Auto Enable TP/SL</label>
-              <div class="tooltip-icon" title="Automatically checks the TP/SL box upon loading the trading pair.">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="15" height="15">
-                  <circle cx="12" cy="12" r="10"></circle>
-                  <line x1="12" y1="16" x2="12" y2="11"></line>
-                  <line x1="12" y1="8" x2="12.01" y2="8"></line>
-                </svg>
+          <div class="accordion-content">
+            <div class="setting-group row-group exchange-feature">
+              <div class="label-with-tooltip">
+                <label for="autoMarketBlofin" class="setting-label">Auto Market Order</label>
+                <div class="tooltip-icon"
+                  title="Automatically selects the Market order type upon loading the trading pair.">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="15" height="15">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="11"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                </div>
               </div>
+              <label class="switch">
+                <input type="checkbox" id="autoMarketBlofin">
+                <span class="slider round"></span>
+              </label>
             </div>
-            <label class="switch">
-              <input type="checkbox" id="autoTPSLBlofin">
-              <span class="slider round"></span>
-            </label>
+
+            <div class="setting-group row-group exchange-feature" style="margin-top: 8px;">
+              <div class="label-with-tooltip">
+                <label for="autoTPSLBlofin" class="setting-label">Auto enable TP/SL</label>
+                <div class="tooltip-icon" title="Automatically checks the TP/SL box upon loading the trading pair.">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round" width="15" height="15">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="11"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                  </svg>
+                </div>
+              </div>
+              <label class="switch">
+                <input type="checkbox" id="autoTPSLBlofin">
+                <span class="slider round"></span>
+              </label>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
-    <button id="saveBtn" class="primary-btn">Save Settings</button>
     <div id="statusMsg" class="status-msg"></div>
   </div>
   <script src="popup.js"></script>
