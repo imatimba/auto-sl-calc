@@ -82,6 +82,15 @@ const injectMonetaryBEButtons = () => {
 };
 
 const handleMonetaryBE = async (row) => {
+  // 0. Calculate fees from the total USDT position (second td in the row)
+  const tds = row.querySelectorAll('td');
+  let fees = 0;
+  if (tds.length >= 2) {
+    const usdtText = tds[1].textContent.trim();
+    const match = usdtText.match(/([\d,.]+)\s*USDT/);
+    if (match) fees = parseFloat(match[1].replace(/,/g, '')) * 0.001;
+  }
+
   // 1. Click the TP/SL icon for this position row
   const tpslIcon = row.querySelector('i[id^="future-position-tpsl-add-"]');
   if (!tpslIcon) return;
@@ -90,11 +99,12 @@ const handleMonetaryBE = async (row) => {
   // 2. Wait for dialog
   const dialog = await waitForElement('[class*="tpsl-wrapper"]', 2000);
   if (!dialog) return;
-  await new Promise(r => setTimeout(r, 600));
 
-  // 3. Detect dialog variation
-  //    Variation 1: has existing TP/SL orders shown as a grid list
-  const existingOrderItem = dialog.querySelector('li[class*="grid"]');
+  // 3. Detect dialog variation — wait for grid list to appear (variation 1)
+  //    If it doesn't appear within 1.5s, assume variation 2 (no existing orders).
+  const existingOrderItem = await waitForElement(
+    '[class*="tpsl-wrapper"] li[class*="grid"]', 1500
+  );
 
   if (existingOrderItem) {
     // --- VARIATION 1: Existing TP/SL orders ---
@@ -137,7 +147,7 @@ const handleMonetaryBE = async (row) => {
     }
 
     // 3e. Now on Screen 3 (Add form) — fill slider, PnL type, and paste value
-    await fillTPForm(dialog, estimatedPnL);
+    await fillTPForm(dialog, estimatedPnL, fees);
 
   } else {
     // --- VARIATION 2: No existing orders ---
@@ -159,7 +169,7 @@ const handleMonetaryBE = async (row) => {
       }
     }
 
-    await fillTPForm(dialog, estimatedPnL);
+    await fillTPForm(dialog, estimatedPnL, fees);
   }
 };
 
@@ -181,9 +191,9 @@ const readEstimatedPnL = (dialog) => {
 };
 
 /**
- * Fills the TP form: sets 50% slider, ensures PnL type, pastes abs(estimatedPnL).
+ * Fills the TP form: sets 50% slider, ensures PnL type, pastes abs(estimatedPnL- fees).
  */
-const fillTPForm = async (dialog, estimatedPnL) => {
+const fillTPForm = async (dialog, estimatedPnL, fees) => {
   // 1. Set slider to 50%
   const markContainer = dialog.querySelector('#positions-amount-slider-mark-container');
   if (markContainer) {
@@ -215,10 +225,11 @@ const fillTPForm = async (dialog, estimatedPnL) => {
     }
   }
 
-  // 3. Paste abs(estimatedPnL) into TP PnL input
+  // 3. Paste abs(estimatedPnL - fees) into TP PnL input
   const tpInput = dialog.querySelector('input[name="tpTriggerPriceType"][placeholder="PnL"]');
   if (tpInput) {
-    setInputValue(tpInput, Math.abs(estimatedPnL).toFixed(2));
+    const tpValue = Math.abs(estimatedPnL - fees);
+    setInputValue(tpInput, tpValue.toFixed(2));
   }
 };
 
