@@ -92,41 +92,99 @@ const handleMonetaryBE = async (row) => {
   if (!dialog) return;
   await new Promise(r => setTimeout(r, 600));
 
-  // 3. Read SL estimatedPnL from "Entire Position" view
-  //    Description paragraphs have text-dark-label-40; SL desc is the last one.
-  //    Its last <span> contains the PnL value (e.g. "-43.14 USDT").
-  const descParagraphs = dialog.querySelectorAll('p[class*="text-dark-label-40"]');
-  let estimatedPnL = null;
+  // 3. Detect dialog variation
+  //    Variation 1: has existing TP/SL orders shown as a grid list
+  const existingOrderItem = dialog.querySelector('li[class*="grid"]');
 
-  if (descParagraphs.length >= 2) {
-    const slDesc = descParagraphs[descParagraphs.length - 1];
-    const spans = slDesc.querySelectorAll('span');
-    const pnlSpan = spans.length > 0 ? spans[spans.length - 1] : null;
-    if (pnlSpan) {
-      const match = pnlSpan.textContent.trim().match(/([-\d,.]+)\s*USDT/);
-      if (match) estimatedPnL = parseFloat(match[1].replace(/,/g, ''));
+  if (existingOrderItem) {
+    // --- VARIATION 1: Existing TP/SL orders ---
+    // 3a. Click "Modify" — it's the LAST button inside the grid li (localization-agnostic)
+    const buttons = existingOrderItem.querySelectorAll('button');
+    const modifyBtn = buttons.length > 0 ? buttons[buttons.length - 1] : null;
+    if (!modifyBtn) return;
+    modifyBtn.click();
+    await new Promise(r => setTimeout(r, 600));
+
+    // 3b. Read estimatedPnL from Screen 2 (Modify view)
+    const estimatedPnL = readEstimatedPnL(dialog);
+    if (estimatedPnL === null || isNaN(estimatedPnL)) {
+      showToast('Monetary BE aborted: SL trigger price is not set for this position.', 'warning');
+      const closeIcon = dialog.querySelector('svg[class*="bu-absolute"][class*="bu-cursor-pointer"]');
+      if (closeIcon) closeIcon.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      return;
     }
-  }
 
-  if (estimatedPnL === null || isNaN(estimatedPnL)) {
-    // Abort: close dialog and notify user
-    showToast('Monetary BE aborted: SL trigger price is not set for this position.', 'warning');
-    const closeIcon = dialog.querySelector('svg[class*="bu-absolute"][class*="bu-cursor-pointer"]');
-    if (closeIcon) closeIcon.dispatchEvent(new MouseEvent('click', { bubbles: true }));
-    return;
-  }
-
-  // 4. Click "Partial Position" tab (second <li> in the tab <ul>)
-  const tabList = dialog.querySelector('ul');
-  if (tabList) {
-    const tabs = tabList.querySelectorAll('li');
-    if (tabs.length >= 2 && !tabs[1].className.includes('active')) {
-      tabs[1].click();
+    // 3c. Click the back arrow to return to Screen 1
+    const backArrow = dialog.querySelector('i[class*="icon-arrow-left-s-line"]');
+    if (backArrow) {
+      backArrow.click();
       await new Promise(r => setTimeout(r, 500));
     }
-  }
 
-  // 5. Set slider to 50% — click the 3rd mark dot (0%, 25%, 50%, 75%, 100%)
+    // 3d. Click the "Add" button — it's the LAST button in the toolbar row
+    //     The toolbar is a flex container with "Cancel all" first and "Add" last.
+    const contentArea = dialog.querySelector('[class*="_content"]');
+    if (contentArea) {
+      const toolbar = contentArea.querySelector('.flex.items-center');
+      if (toolbar) {
+        const toolbarBtns = toolbar.querySelectorAll('button');
+        const addBtn = toolbarBtns.length > 0 ? toolbarBtns[toolbarBtns.length - 1] : null;
+        if (addBtn) {
+          addBtn.click();
+          await new Promise(r => setTimeout(r, 600));
+        }
+      }
+    }
+
+    // 3e. Now on Screen 3 (Add form) — fill slider, PnL type, and paste value
+    await fillTPForm(dialog, estimatedPnL);
+
+  } else {
+    // --- VARIATION 2: No existing orders ---
+    const estimatedPnL = readEstimatedPnL(dialog);
+    if (estimatedPnL === null || isNaN(estimatedPnL)) {
+      showToast('Monetary BE aborted: SL trigger price is not set for this position.', 'warning');
+      const closeIcon = dialog.querySelector('svg[class*="bu-absolute"][class*="bu-cursor-pointer"]');
+      if (closeIcon) closeIcon.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      return;
+    }
+
+    // Click "Partial Position" tab (second <li> in the tab <ul>)
+    const tabList = dialog.querySelector('ul');
+    if (tabList) {
+      const tabs = tabList.querySelectorAll('li');
+      if (tabs.length >= 2 && !tabs[1].className.includes('active')) {
+        tabs[1].click();
+        await new Promise(r => setTimeout(r, 500));
+      }
+    }
+
+    await fillTPForm(dialog, estimatedPnL);
+  }
+};
+
+/**
+ * Reads the SL estimated PnL from the currently visible dialog screen.
+ * Returns a float (negative) or null if not found.
+ */
+const readEstimatedPnL = (dialog) => {
+  const descParagraphs = dialog.querySelectorAll('p[class*="text-dark-label-40"]');
+  if (descParagraphs.length < 2) return null;
+
+  const slDesc = descParagraphs[descParagraphs.length - 1];
+  const spans = slDesc.querySelectorAll('span');
+  const pnlSpan = spans.length > 0 ? spans[spans.length - 1] : null;
+  if (!pnlSpan) return null;
+
+  const match = pnlSpan.textContent.trim().match(/([-\d,.]+)\s*USDT/);
+  return match ? parseFloat(match[1].replace(/,/g, '')) : null;
+};
+
+/**
+ * Fills the TP form: sets 50% slider, ensures PnL type, pastes abs(estimatedPnL).
+ */
+const fillTPForm = async (dialog, estimatedPnL) => {
+  // 1. Set slider to 50%
   const markContainer = dialog.querySelector('#positions-amount-slider-mark-container');
   if (markContainer) {
     const marks = markContainer.querySelectorAll('[class*="mark"]');
@@ -136,14 +194,13 @@ const handleMonetaryBE = async (row) => {
     }
   }
 
-  // 6. Ensure TP trigger price type is "PnL" (hidden input value === "pnl")
+  // 2. Ensure TP trigger price type is "PnL"
   const tpTypeEl = dialog.querySelector('#tpTriggerPriceType');
   if (tpTypeEl) {
     const hiddenInput = tpTypeEl.parentElement.querySelector('input[type="hidden"]');
     if (hiddenInput && hiddenInput.value !== 'pnl') {
       tpTypeEl.click();
       await new Promise(r => setTimeout(r, 300));
-      // Find the VISIBLE portaled dropdown container and click the PnL (USDT) option
       const visibleDropdown = document.querySelector('div[class*="_select-container"][class*="bu-visible"]');
       if (visibleDropdown) {
         const options = visibleDropdown.querySelectorAll('li');
@@ -158,7 +215,7 @@ const handleMonetaryBE = async (row) => {
     }
   }
 
-  // 7. Paste abs(estimatedPnL) into the TP trigger price input
+  // 3. Paste abs(estimatedPnL) into TP PnL input
   const tpInput = dialog.querySelector('input[name="tpTriggerPriceType"][placeholder="PnL"]');
   if (tpInput) {
     setInputValue(tpInput, Math.abs(estimatedPnL).toFixed(2));
