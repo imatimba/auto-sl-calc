@@ -45,6 +45,126 @@ const injectBlofinSLCheckboxes = () => {
   });
 };
 
+let isMonetaryBEInProgress = false;
+
+const injectMonetaryBEButtons = () => {
+  const tbody = document.querySelector('tbody[class*="UnionPositions_tbody"]');
+  if (!tbody) return;
+
+  const rows = tbody.querySelectorAll('tr[id^="future-position-"]');
+  rows.forEach(row => {
+    if (row.querySelector('.monetary-be-btn')) return;
+
+    const tds = row.querySelectorAll('td');
+    if (tds.length < 2) return;
+    const usdtTd = tds[1]; // Second td = total USDT position
+
+    const btn = document.createElement('button');
+    btn.className = 'monetary-be-btn';
+    btn.textContent = 'monetary BE';
+    btn.title = 'Monetary Breakeven - Set partial TP to recover SL loss';
+    btn.style.cssText = 'margin-left:4px;padding:2px 6px;font-size:10px;font-weight:600;border-radius:4px;border:1px solid #10b981;color:#10b981;background:transparent;cursor:pointer;vertical-align:middle;line-height:14px;transition:all .15s ease;';
+
+    btn.addEventListener('mouseenter', () => { btn.style.backgroundColor = '#10b98120'; });
+    btn.addEventListener('mouseleave', () => { btn.style.backgroundColor = 'transparent'; });
+
+    btn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      if (isMonetaryBEInProgress) return;
+      isMonetaryBEInProgress = true;
+      btn.textContent = '...';
+      try { await handleMonetaryBE(row); }
+      finally { btn.textContent = 'monetary BE'; isMonetaryBEInProgress = false; }
+    });
+
+    usdtTd.appendChild(btn);
+  });
+};
+
+const handleMonetaryBE = async (row) => {
+  // 1. Click the TP/SL icon for this position row
+  const tpslIcon = row.querySelector('i[id^="future-position-tpsl-add-"]');
+  if (!tpslIcon) return;
+  tpslIcon.click();
+
+  // 2. Wait for dialog
+  const dialog = await waitForElement('[class*="tpsl-wrapper"]', 2000);
+  if (!dialog) return;
+  await new Promise(r => setTimeout(r, 600));
+
+  // 3. Read SL estimatedPnL from "Entire Position" view
+  //    Description paragraphs have text-dark-label-40; SL desc is the last one.
+  //    Its last <span> contains the PnL value (e.g. "-43.14 USDT").
+  const descParagraphs = dialog.querySelectorAll('p[class*="text-dark-label-40"]');
+  let estimatedPnL = null;
+
+  if (descParagraphs.length >= 2) {
+    const slDesc = descParagraphs[descParagraphs.length - 1];
+    const spans = slDesc.querySelectorAll('span');
+    const pnlSpan = spans.length > 0 ? spans[spans.length - 1] : null;
+    if (pnlSpan) {
+      const match = pnlSpan.textContent.trim().match(/([-\d,.]+)\s*USDT/);
+      if (match) estimatedPnL = parseFloat(match[1].replace(/,/g, ''));
+    }
+  }
+
+  if (estimatedPnL === null || isNaN(estimatedPnL)) {
+    // Abort: close dialog and notify user
+    showToast('Monetary BE aborted: SL trigger price is not set for this position.', 'warning');
+    const closeIcon = dialog.querySelector('svg[class*="bu-absolute"][class*="bu-cursor-pointer"]');
+    if (closeIcon) closeIcon.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+    return;
+  }
+
+  // 4. Click "Partial Position" tab (second <li> in the tab <ul>)
+  const tabList = dialog.querySelector('ul');
+  if (tabList) {
+    const tabs = tabList.querySelectorAll('li');
+    if (tabs.length >= 2 && !tabs[1].className.includes('active')) {
+      tabs[1].click();
+      await new Promise(r => setTimeout(r, 500));
+    }
+  }
+
+  // 5. Set slider to 50% — click the 3rd mark dot (0%, 25%, 50%, 75%, 100%)
+  const markContainer = dialog.querySelector('#positions-amount-slider-mark-container');
+  if (markContainer) {
+    const marks = markContainer.querySelectorAll('[class*="mark"]');
+    if (marks.length >= 3) {
+      marks[2].click();
+      await new Promise(r => setTimeout(r, 400));
+    }
+  }
+
+  // 6. Ensure TP trigger price type is "PnL" (hidden input value === "pnl")
+  const tpTypeEl = dialog.querySelector('#tpTriggerPriceType');
+  if (tpTypeEl) {
+    const hiddenInput = tpTypeEl.parentElement.querySelector('input[type="hidden"]');
+    if (hiddenInput && hiddenInput.value !== 'pnl') {
+      tpTypeEl.click();
+      await new Promise(r => setTimeout(r, 300));
+      // Find the VISIBLE portaled dropdown container and click the PnL (USDT) option
+      const visibleDropdown = document.querySelector('div[class*="_select-container"][class*="bu-visible"]');
+      if (visibleDropdown) {
+        const options = visibleDropdown.querySelectorAll('li');
+        for (const opt of options) {
+          if ((opt.textContent || '').trim() === 'PnL (USDT)') {
+            opt.click();
+            await new Promise(r => setTimeout(r, 300));
+            break;
+          }
+        }
+      }
+    }
+  }
+
+  // 7. Paste abs(estimatedPnL) into the TP trigger price input
+  const tpInput = dialog.querySelector('input[name="tpTriggerPriceType"][placeholder="PnL"]');
+  if (tpInput) {
+    setInputValue(tpInput, Math.abs(estimatedPnL).toFixed(2));
+  }
+};
+
 const Blofin = {
   name: 'Blofin',
   onNavigation: () => {
@@ -90,6 +210,7 @@ const Blofin = {
   onQoL: async (context) => {
     const { settings } = context;
     injectBlofinSLCheckboxes();
+    injectMonetaryBEButtons();
 
     // 1. Auto Market Logic
     const autoMarketBlofin = settings.autoMarketBlofin !== undefined ? settings.autoMarketBlofin : true;
