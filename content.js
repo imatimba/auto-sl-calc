@@ -35,7 +35,7 @@ function updatePriceHistory(currentPrice, secondsMemory) {
 }
 
 function mainLoop() {
-  chrome.storage.local.get(['enabled', 'riskPercent', 'secondsMemory', 'autoEnableSLStandard', 'autoMarketBlofin', 'autoTPSLBlofin', 'autoCalcMargin'], (settings) => {
+  chrome.storage.local.get(['enabled', 'riskPercent', 'secondsMemory', 'autoSLBingXStd', 'autoMarketBlofin', 'autoTPSLBlofin', 'autoCalcMargin'], (settings) => {
     if (!settings.enabled) return; // Only run if extension is toggled ON
 
     const parser = getExchangeParser();
@@ -121,5 +121,5 @@ function mainLoop() {
   });
 }
 
-// Start main loop every 1000ms
-setInterval(mainLoop, 500);
+// Start main loop every 100ms
+setInterval(mainLoop, 100);

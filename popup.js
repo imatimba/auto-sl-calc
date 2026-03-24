@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const enabledToggle = document.getElementById('enabledToggle');
   const riskPercentInput = document.getElementById('riskPercent');
   const memoryInput = document.getElementById('minutesMemory');
-  const autoEnableSLStandardInput = document.getElementById('autoSLToggle');
+  const autoSLBingXStdInput = document.getElementById('autoSLBingXStd');
   const autoMarketBlofinInput = document.getElementById('autoMarketBlofin');
   const autoTPSLBlofinInput = document.getElementById('autoTPSLBlofin');
   const autoCalcMarginInput = document.getElementById('autoCalcMargin');
@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initialSettings = {
       enabled: enabledToggle.checked,
       autoCalcMargin: autoCalcMarginInput.checked,
-      autoEnableSLStandard: autoEnableSLStandardInput.checked,
+      autoSLBingXStd: autoSLBingXStdInput.checked,
       autoMarketBlofin: autoMarketBlofinInput.checked,
       autoTPSLBlofin: autoTPSLBlofinInput.checked,
       riskPercent: parseFloat(riskPercentInput.value) || 0,
@@ -27,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const currentSettings = {
       enabled: enabledToggle.checked,
       autoCalcMargin: autoCalcMarginInput.checked,
-      autoEnableSLStandard: autoEnableSLStandardInput.checked,
+      autoSLBingXStd: autoSLBingXStdInput.checked,
       autoMarketBlofin: autoMarketBlofinInput.checked,
       autoTPSLBlofin: autoTPSLBlofinInput.checked,
       riskPercent: parseFloat(riskPercentInput.value) || 0,
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Attach listeners to all inputs
-  const inputs = [enabledToggle, riskPercentInput, memoryInput, autoEnableSLStandardInput, autoMarketBlofinInput, autoTPSLBlofinInput, autoCalcMarginInput];
+  const inputs = [enabledToggle, riskPercentInput, memoryInput, autoSLBingXStdInput, autoMarketBlofinInput, autoTPSLBlofinInput, autoCalcMarginInput];
   inputs.forEach(input => {
     input.addEventListener('change', checkForChanges);
     input.addEventListener('input', checkForChanges);
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'enabled',
     'riskPercent',
     'secondsMemory',
-    'autoEnableSLStandard',
+    'autoSLBingXStd',
     'autoMarketBlofin',
     'autoTPSLBlofin',
     'autoCalcMargin'
@@ -111,8 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     autoCalcMarginInput.checked = result.autoCalcMargin !== undefined ? result.autoCalcMargin : true;
     
     // Default to true for the auto-enable QoL feature if unset!
-    autoEnableSLStandardInput.checked = result.autoEnableSLStandard !== undefined ? result.autoEnableSLStandard : true;
-    // Default to true for autoMarketBlofin if unset
+    autoSLBingXStdInput.checked = result.autoSLBingXStd !== undefined ? result.autoSLBingXStd : true;
     autoMarketBlofinInput.checked = result.autoMarketBlofin !== undefined ? result.autoMarketBlofin : true;
     autoTPSLBlofinInput.checked = result.autoTPSLBlofin !== undefined ? result.autoTPSLBlofin : true;
     
@@ -133,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
   saveBtn.addEventListener('click', () => {
     const enabled = enabledToggle.checked;
     const autoCalcMargin = autoCalcMarginInput.checked;
-    const autoEnableSLStandard = autoEnableSLStandardInput.checked;
+    const autoSLBingXStd = autoSLBingXStdInput.checked;
     const autoMarketBlofin = autoMarketBlofinInput.checked;
     const autoTPSLBlofin = autoTPSLBlofinInput.checked;
     const riskPercentRaw = parseFloat(riskPercentInput.value);
@@ -151,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
       enabled: enabled,
       riskPercent: _riskPercent,
       secondsMemory: _secondsMemory,
-      autoEnableSLStandard: autoEnableSLStandard,
+      autoSLBingXStd: autoSLBingXStd,
       autoMarketBlofin: autoMarketBlofin,
       autoTPSLBlofin: autoTPSLBlofin,
       autoCalcMargin: autoCalcMargin

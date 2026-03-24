@@ -55,9 +55,9 @@ const BingXStandard = {
 
   onQoL: async (context) => {
     const { settings } = context;
-    const autoEnableSLStandard = settings.autoEnableSLStandard !== undefined ? settings.autoEnableSLStandard : true;
+    const autoSLBingXStd = settings.autoSLBingXStd !== undefined ? settings.autoSLBingXStd : true;
 
-    if (autoEnableSLStandard && !hasAutoEnabledSL && !isAutoEnablingSL) {
+    if (autoSLBingXStd && !hasAutoEnabledSL && !isAutoEnablingSL) {
       isAutoEnablingSL = true;
       try {
         const slWrapper = Array.from(document.querySelectorAll('.futures-sl-switch-wrap'))
