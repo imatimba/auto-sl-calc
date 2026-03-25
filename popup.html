@@ -75,6 +75,57 @@
 
       <div class="setting-group row-group">
         <div class="label-with-tooltip">
+          <label for="useAvailBalance" class="setting-label">Use Available Balance</label>
+          <div class="tooltip-icon"
+            title="When enabled, uses the exchange's available balance. When disabled, uses a fixed balance amount you specify.">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="15" height="15">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="11"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="useAvailBalance">
+          <span class="slider round"></span>
+        </label>
+      </div>
+
+      <div class="setting-group row-group" id="fixedBalanceGroup" style="display: none;">
+        <div class="label-with-tooltip">
+          <label for="fixedBalance" class="setting-label">Fixed Balance</label>
+          <div class="tooltip-icon" title="Fixed USDT balance to use instead of the exchange's available balance.">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+              stroke-linejoin="round" width="15" height="15">
+              <circle cx="12" cy="12" r="10"></circle>
+              <line x1="12" y1="16" x2="12" y2="11"></line>
+              <line x1="12" y1="8" x2="12.01" y2="8"></line>
+            </svg>
+          </div>
+        </div>
+        <div class="input-wrapper">
+          <input type="number" id="fixedBalance" step="10" min="1" value="100" class="compact-input">
+          <div class="custom-spinners">
+            <button type="button" class="spin-btn spin-up" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="18 15 12 9 6 15"></polyline>
+              </svg>
+            </button>
+            <button type="button" class="spin-btn spin-down" tabindex="-1">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+          </div>
+          <span class="suffix">$</span>
+        </div>
+      </div>
+
+      <div class="setting-group row-group">
+        <div class="label-with-tooltip">
           <label for="riskPercent" class="setting-label">Risk Percentage</label>
           <div class="tooltip-icon" title="Percentage of total available balance to risk.">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

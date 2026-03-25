@@ -35,7 +35,7 @@ function updatePriceHistory(currentPrice, secondsMemory) {
 }
 
 function mainLoop() {
-  chrome.storage.local.get(['autoCalcSL', 'riskPercent', 'secondsMemory', 'autoSLBingXStd', 'autoMarketBlofin', 'autoTPSLBlofin', 'autoCalcMargin'], (settings) => {
+  chrome.storage.local.get(['autoCalcSL', 'useAvailBalance', 'fixedBalance', 'riskPercent', 'secondsMemory', 'autoSLBingXStd', 'autoMarketBlofin', 'autoTPSLBlofin', 'autoCalcMargin'], (settings) => {
 
     const parser = getExchangeParser();
     if (!parser) return;
@@ -52,10 +52,11 @@ function mainLoop() {
     const secondsMemory = settings.secondsMemory !== undefined ? settings.secondsMemory : 900;
     const autoCalcSL = settings.autoCalcSL !== undefined ? settings.autoCalcSL : true;
     const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
+    const useAvailBalance = settings.useAvailBalance !== undefined ? settings.useAvailBalance : true;
 
     const lastPrice = parser.getLastPrice();
     const leverage = parser.getLeverage();
-    const availBalance = parser.getAvailBalance();
+    const availBalance = useAvailBalance ? parser.getAvailBalance() : (settings.fixedBalance || 0);
     const riskFlatAmount = settings.riskPercent !== undefined ? settings.riskPercent * availBalance : 0.005 * availBalance;
     const operationMode = parser.getOperationMode();
 
