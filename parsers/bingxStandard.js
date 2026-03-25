@@ -117,9 +117,8 @@ const BingXStandard = {
   },
 
   onMarginPaste: (context) => {
-    const { settings, marginFlatAmount } = context;
-    const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
-    if (!autoCalcMargin || marginFlatAmount <= 0) return;
+    const { marginFlatAmount } = context;
+    if (marginFlatAmount <= 0) return;
 
     const slider = document.querySelector('.slider');
     const container = slider ? slider.closest('.futures-base-item-wrap') : null;

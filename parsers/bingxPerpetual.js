@@ -47,9 +47,8 @@ const BingXPerpetual = {
   },
 
   onMarginPaste: (context) => {
-    const { settings, marginFlatAmount } = context;
-    const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
-    if (!autoCalcMargin || marginFlatAmount <= 0) return;
+    const { marginFlatAmount } = context;
+    if (marginFlatAmount <= 0) return;
 
     const allInputs = Array.from(document.querySelectorAll('.ti-outer-wrap input.tl-input-inner'));
     const marginInput = allInputs.find(i =>

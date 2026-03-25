@@ -348,9 +348,8 @@ const Blofin = {
   },
 
   onMarginPaste: (context) => {
-    const { settings, marginFlatAmount } = context;
-    const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
-    if (!autoCalcMargin || marginFlatAmount <= 0) return;
+    const { marginFlatAmount } = context;
+    if (marginFlatAmount <= 0) return;
 
     const marginInputs = [
       document.getElementById('future-market-amount'),

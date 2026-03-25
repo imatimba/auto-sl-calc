@@ -35,8 +35,7 @@ function updatePriceHistory(currentPrice, secondsMemory) {
 }
 
 function mainLoop() {
-  chrome.storage.local.get(['enabled', 'riskPercent', 'secondsMemory', 'autoSLBingXStd', 'autoMarketBlofin', 'autoTPSLBlofin', 'autoCalcMargin'], (settings) => {
-    if (!settings.enabled) return; // Only run if extension is toggled ON
+  chrome.storage.local.get(['autoCalcSL', 'riskPercent', 'secondsMemory', 'autoSLBingXStd', 'autoMarketBlofin', 'autoTPSLBlofin', 'autoCalcMargin'], (settings) => {
 
     const parser = getExchangeParser();
     if (!parser) return;
@@ -51,6 +50,8 @@ function mainLoop() {
 
     // Use default value if undefined (15 minutes = 900 seconds)
     const secondsMemory = settings.secondsMemory !== undefined ? settings.secondsMemory : 900;
+    const autoCalcSL = settings.autoCalcSL !== undefined ? settings.autoCalcSL : true;
+    const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
 
     const lastPrice = parser.getLastPrice();
     const leverage = parser.getLeverage();
@@ -71,7 +72,6 @@ function mainLoop() {
 
     // Calculate required margin to hit riskFlatAmount
     let marginFlatAmount = 0;
-    const autoCalcMargin = settings.autoCalcMargin !== undefined ? settings.autoCalcMargin : true;
 
     if (autoCalcMargin && slDistancePercent > 0 && leverage > 0) {
       marginFlatAmount = riskFlatAmount / ((slDistancePercent / 100) * leverage);
@@ -99,10 +99,10 @@ function mainLoop() {
     if (parser.onQoL) {
       parser.onQoL(context);
     }
-    if (parser.onSLPaste) {
+    if (autoCalcSL && parser.onSLPaste) {
       parser.onSLPaste(context);
     }
-    if (parser.onMarginPaste) {
+    if (autoCalcMargin && parser.onMarginPaste) {
       parser.onMarginPaste(context);
     }
 

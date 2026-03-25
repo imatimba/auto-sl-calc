@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const enabledToggle = document.getElementById('enabledToggle');
+  const autoCalcSLInput = document.getElementById('autoCalcSL');
   const riskPercentInput = document.getElementById('riskPercent');
   const memoryInput = document.getElementById('minutesMemory');
   const autoSLBingXStdInput = document.getElementById('autoSLBingXStd');
@@ -13,7 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateInitialSettings() {
     initialSettings = {
-      enabled: enabledToggle.checked,
+      autoCalcSL: autoCalcSLInput.checked,
       autoCalcMargin: autoCalcMarginInput.checked,
       autoSLBingXStd: autoSLBingXStdInput.checked,
       autoMarketBlofin: autoMarketBlofinInput.checked,
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function checkForChanges() {
     const currentSettings = {
-      enabled: enabledToggle.checked,
+      autoCalcSL: autoCalcSLInput.checked,
       autoCalcMargin: autoCalcMarginInput.checked,
       autoSLBingXStd: autoSLBingXStdInput.checked,
       autoMarketBlofin: autoMarketBlofinInput.checked,
@@ -91,7 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Attach listeners to all inputs
-  const inputs = [enabledToggle, riskPercentInput, memoryInput, autoSLBingXStdInput, autoMarketBlofinInput, autoTPSLBlofinInput, autoCalcMarginInput];
+  const inputs = [autoCalcSLInput, riskPercentInput, memoryInput, autoSLBingXStdInput, autoMarketBlofinInput, autoTPSLBlofinInput, autoCalcMarginInput];
   inputs.forEach(input => {
     input.addEventListener('change', checkForChanges);
     input.addEventListener('input', checkForChanges);
@@ -99,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load existing settings
   chrome.storage.local.get([
-    'enabled',
+    'autoCalcSL',
     'riskPercent',
     'secondsMemory',
     'autoSLBingXStd',
@@ -107,7 +107,7 @@ document.addEventListener('DOMContentLoaded', () => {
     'autoTPSLBlofin',
     'autoCalcMargin'
   ], (result) => {
-    enabledToggle.checked = result.enabled || false;
+    autoCalcSLInput.checked = result.autoCalcSL || false;
     autoCalcMarginInput.checked = result.autoCalcMargin !== undefined ? result.autoCalcMargin : true;
     
     // Default to true for the auto-enable QoL feature if unset!
@@ -130,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   saveBtn.addEventListener('click', () => {
-    const enabled = enabledToggle.checked;
+    const autoCalcSL = autoCalcSLInput.checked;
     const autoCalcMargin = autoCalcMarginInput.checked;
     const autoSLBingXStd = autoSLBingXStdInput.checked;
     const autoMarketBlofin = autoMarketBlofinInput.checked;
@@ -147,7 +147,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const _secondsMemory = Math.round(minutesMemoryRaw * 60);
 
     chrome.storage.local.set({
-      enabled: enabled,
+      autoCalcSL: autoCalcSL,
       riskPercent: _riskPercent,
       secondsMemory: _secondsMemory,
       autoSLBingXStd: autoSLBingXStd,
