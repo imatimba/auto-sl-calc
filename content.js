@@ -63,11 +63,25 @@ function mainLoop() {
     const { minPrice, maxPrice } = updatePriceHistory(lastPrice, secondsMemory);
     
     // Calculate SL percentage distance
+    // Prefer the current SL price from the exchange input (supports manual SL)
+    // Fall back to price history (min/max) when autoCalcSL is active
     let slDistancePercent = 0;
-    if (operationMode === 'long') {
-      slDistancePercent = lastPrice > minPrice ? ((lastPrice - minPrice) / lastPrice) * 100 : 0;
-    } else if (operationMode === 'short') {
-      slDistancePercent = maxPrice > lastPrice ? ((maxPrice - lastPrice) / lastPrice) * 100 : 0;
+    const currentSLPrice = parser.getSLPrice ? parser.getSLPrice() : null;
+
+    if (currentSLPrice && lastPrice > 0) {
+      // Use the SL price currently set in the exchange input
+      if (operationMode === 'long') {
+        slDistancePercent = lastPrice > currentSLPrice ? ((lastPrice - currentSLPrice) / lastPrice) * 100 : 0;
+      } else if (operationMode === 'short') {
+        slDistancePercent = currentSLPrice > lastPrice ? ((currentSLPrice - lastPrice) / lastPrice) * 100 : 0;
+      }
+    } else if (autoCalcSL) {
+      // Fall back to price history for auto SL calculation
+      if (operationMode === 'long') {
+        slDistancePercent = lastPrice > minPrice ? ((lastPrice - minPrice) / lastPrice) * 100 : 0;
+      } else if (operationMode === 'short') {
+        slDistancePercent = maxPrice > lastPrice ? ((maxPrice - lastPrice) / lastPrice) * 100 : 0;
+      }
     }
 
     // Calculate required margin to hit riskFlatAmount

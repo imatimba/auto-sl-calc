@@ -267,6 +267,12 @@ const Blofin = {
     }
     return null;
   },
+  getSLPrice: () => {
+    const slInput = document.getElementById('TPSLOrderWidget-slTriggerPrice');
+    if (!slInput || slInput.value === '') return null;
+    const val = parseFloat(slInput.value);
+    return isNaN(val) || val <= 0 ? null : val;
+  },
   getOperationMode: () => {
     const longCb = document.getElementById('auto-sl-blofin-long');
     const shortCb = document.getElementById('auto-sl-blofin-short');

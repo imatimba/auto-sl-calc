@@ -29,6 +29,19 @@ const BingXStandard = {
     }
     return null;
   },
+  getSLPrice: () => {
+    const containers = Array.from(document.querySelectorAll('.futures-sl-wrap, .ti-outer-wrap'));
+    const slRow = containers.find(el => (el.textContent || '').includes('Stop Loss') && el.querySelector('input.tl-input-inner'));
+    if (!slRow) return null;
+    const unitEl = slRow.querySelector('.ti-suffix-unit-wrap .bx-select-item-active .r-text') ||
+                   slRow.querySelector('.ti-single-unit-text');
+    const unit = unitEl ? (unitEl.textContent || '').trim() : '';
+    if (unit !== 'USDT') return null;
+    const slInput = slRow.querySelector('input.tl-input-inner');
+    if (!slInput || slInput.value === '') return null;
+    const val = parseFloat(slInput.value);
+    return isNaN(val) || val <= 0 ? null : val;
+  },
   getOperationMode: () => {
     const wraps = document.querySelectorAll('.futures-sl-switch-wrap');
     let slSwitchWrap = wraps.length > 1 ? wraps[1] : wraps[0];

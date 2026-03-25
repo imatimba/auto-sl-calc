@@ -18,6 +18,14 @@ const BingXPerpetual = {
     const el = document.querySelector('.op-asset-content .asset-value .text-tip');
     return el ? Math.floor(parseNumber(el.innerText)) : null;
   },
+  getSLPrice: () => {
+    const sltpWrappers = document.querySelectorAll('.sltp-wrapper');
+    if (sltpWrappers.length < 2) return null;
+    const slInput = sltpWrappers[1].querySelector('input');
+    if (!slInput || slInput.value === '') return null;
+    const val = parseFloat(slInput.value);
+    return isNaN(val) || val <= 0 ? null : val;
+  },
   getOperationMode: () => {
     const items = document.querySelectorAll('.checkbox-group .checkbox-item input[type="checkbox"]');
     if (items.length >= 2) {
