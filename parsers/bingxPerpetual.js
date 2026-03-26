@@ -1,3 +1,10 @@
+const injectBingXSLCheckboxes = () => {
+  injectAutoSLCheckboxes('bingx-perp', () => {
+    const buyBtn = document.querySelector('.btn-wrap-both .btn-order-blue, .btn-wrap-single .btn-order-blue, button.btn-order-blue');
+    return buyBtn && buyBtn.parentElement ? buyBtn.parentElement : null;
+  });
+};
+
 const BingXPerpetual = {
   name: 'BingX Perpetual',
   getLastPrice: () => {
@@ -19,20 +26,25 @@ const BingXPerpetual = {
     return el ? Math.floor(parseNumber(el.innerText)) : null;
   },
   getSLPrice: () => {
-    const sltpWrappers = document.querySelectorAll('.sltp-wrapper');
-    if (sltpWrappers.length < 2) return null;
-    const slInput = sltpWrappers[1].querySelector('input');
+    let slInput = document.querySelector('input[placeholder="SL Trigger"]');
+    if (!slInput) {
+      const sltpWrappers = document.querySelectorAll('.sltp-wrapper');
+      if (sltpWrappers.length >= 2) slInput = sltpWrappers[1].querySelector('input');
+    }
     if (!slInput || slInput.value === '') return null;
     const val = parseFloat(slInput.value);
     return isNaN(val) || val <= 0 ? null : val;
   },
   getOperationMode: () => {
-    const items = document.querySelectorAll('.checkbox-group .checkbox-item input[type="checkbox"]');
-    if (items.length >= 2) {
-      if (items[0].checked) return "long";
-      if (items[1].checked) return "short";
-    }
+    const longCb = document.getElementById('auto-sl-bingx-perp-long');
+    const shortCb = document.getElementById('auto-sl-bingx-perp-short');
+    if (longCb && longCb.checked) return 'long';
+    if (shortCb && shortCb.checked) return 'short';
     return null;
+  },
+
+  onQoL: (context) => {
+    injectBingXSLCheckboxes();
   },
 
   onSLPaste: (context) => {
@@ -42,10 +54,11 @@ const BingXPerpetual = {
     const targetSlPrice = operationMode === 'long' ? minPrice : maxPrice;
     if (targetSlPrice === null || isNaN(targetSlPrice) || targetSlPrice <= 0) return;
 
-    const sltpWrappers = document.querySelectorAll('.sltp-wrapper');
-    if (sltpWrappers.length < 2) return;
-
-    const slInput = sltpWrappers[1].querySelector('input');
+    let slInput = document.querySelector('input[placeholder="SL Trigger"]');
+    if (!slInput) {
+      const sltpWrappers = document.querySelectorAll('.sltp-wrapper');
+      if (sltpWrappers.length >= 2) slInput = sltpWrappers[1].querySelector('input');
+    }
     if (!slInput) return;
 
     const currentInputValue = parseFloat(slInput.value);

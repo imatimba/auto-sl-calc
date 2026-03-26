@@ -74,3 +74,49 @@ function showToast(message, type = 'info', duration = 3000) {
     setTimeout(() => toast.remove(), 300);
   }, duration);
 }
+
+const injectAutoSLCheckboxes = (idPrefix, targetElementFinder) => {
+  const containerId = `auto-sl-${idPrefix}-controls`;
+  if (document.getElementById(containerId)) return;
+
+  const target = targetElementFinder();
+  if (!target) return;
+
+  const container = document.createElement('div');
+  container.id = containerId;
+  container.style.display = 'flex';
+  container.style.justifyContent = 'space-between';
+  container.style.marginBottom = '8px';
+  container.style.fontSize = '12px';
+  container.style.color = '#fff';
+  container.style.width = '100%';
+
+  const longId = `auto-sl-${idPrefix}-long`;
+  const longSL = document.createElement('label');
+  longSL.style.display = 'flex';
+  longSL.style.alignItems = 'center';
+  longSL.style.gap = '6px';
+  longSL.style.cursor = 'pointer';
+  longSL.innerHTML = `<input type="checkbox" id="${longId}"><span style="color: #2ebd85; font-weight: 500;">Long</span>`;
+
+  const shortId = `auto-sl-${idPrefix}-short`;
+  const shortSL = document.createElement('label');
+  shortSL.style.display = 'flex';
+  shortSL.style.alignItems = 'center';
+  shortSL.style.gap = '6px';
+  shortSL.style.cursor = 'pointer';
+  shortSL.innerHTML = `<input type="checkbox" id="${shortId}"><span style="color: #f6465d; font-weight: 500;">Short</span>`;
+
+  container.appendChild(longSL);
+  container.appendChild(shortSL);
+
+  target.before(container);
+
+  // Ensure mutual exclusivity
+  document.getElementById(longId).addEventListener('change', (e) => {
+    if (e.target.checked) document.getElementById(shortId).checked = false;
+  });
+  document.getElementById(shortId).addEventListener('change', (e) => {
+    if (e.target.checked) document.getElementById(longId).checked = false;
+  });
+};

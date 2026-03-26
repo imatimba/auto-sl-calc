@@ -4,44 +4,9 @@ let hasAutoEnabledTPSL = false;
 let isAutoEnablingTPSL = false;
 
 const injectBlofinSLCheckboxes = () => {
-  if (document.getElementById('auto-sl-blofin-controls')) return;
-
-  const buyBtn = document.querySelector('#futures_buy');
-  if (!buyBtn || !buyBtn.parentElement) return;
-
-  const container = document.createElement('div');
-  container.id = 'auto-sl-blofin-controls';
-  container.style.display = 'flex';
-  container.style.justifyContent = 'space-between';
-  container.style.marginBottom = '8px';
-  container.style.fontSize = '12px';
-  container.style.color = '#fff';
-
-  const longSL = document.createElement('label');
-  longSL.style.display = 'flex';
-  longSL.style.alignItems = 'center';
-  longSL.style.gap = '6px';
-  longSL.style.cursor = 'pointer';
-  longSL.innerHTML = `<input type="checkbox" id="auto-sl-blofin-long"><span style="color: #2ebd85; font-weight: 500;">Long Auto-SL</span>`;
-
-  const shortSL = document.createElement('label');
-  shortSL.style.display = 'flex';
-  shortSL.style.alignItems = 'center';
-  shortSL.style.gap = '6px';
-  shortSL.style.cursor = 'pointer';
-  shortSL.innerHTML = `<input type="checkbox" id="auto-sl-blofin-short"><span style="color: #f6465d; font-weight: 500;">Short Auto-SL</span>`;
-
-  container.appendChild(longSL);
-  container.appendChild(shortSL);
-
-  buyBtn.parentElement.before(container);
-
-  // Ensure mutual exclusivity
-  document.getElementById('auto-sl-blofin-long').addEventListener('change', (e) => {
-    if (e.target.checked) document.getElementById('auto-sl-blofin-short').checked = false;
-  });
-  document.getElementById('auto-sl-blofin-short').addEventListener('change', (e) => {
-    if (e.target.checked) document.getElementById('auto-sl-blofin-long').checked = false;
+  injectAutoSLCheckboxes('blofin', () => {
+    const buyBtn = document.querySelector('#futures_buy');
+    return buyBtn && buyBtn.parentElement ? buyBtn.parentElement : null;
   });
 };
 
