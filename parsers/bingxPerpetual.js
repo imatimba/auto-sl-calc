@@ -1,11 +1,19 @@
 const injectBingXSLCheckboxes = () => {
   injectAutoSLCheckboxes('bingx-perp', () => {
-    // Try to find the common buttons container first for stable injection
-    const directionBtns = document.querySelector('.direction-btns, .op-order-btn-wrapper, .btn-wrap-both, .btn-wrap-single');
+    const buyBtn = document.querySelector('button.btn-order-blue, .btn-order-blue');
+    if (!buyBtn) return null;
+    
+    // Safely target the main button wrapper to avoid splitting the flex layout.
+    // BingX DOM structure: button -> span.btn -> span.tooltip-flex -> div.direction-btns
+    const directionBtns = buyBtn.closest('.direction-btns, .op-order-btn-wrapper');
     if (directionBtns) return directionBtns;
 
-    const buyBtn = document.querySelector('button.btn-order-blue, .btn-order-blue');
-    return buyBtn && buyBtn.parentElement ? buyBtn.parentElement : null;
+    let parent = buyBtn.parentElement;
+    // Fallback: go up 3 levels to escape the individual button tooltips
+    if (parent) parent = parent.parentElement;
+    if (parent) parent = parent.parentElement;
+    
+    return parent || buyBtn.parentElement;
   });
 };
 
