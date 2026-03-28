@@ -1,6 +1,10 @@
 const injectBingXSLCheckboxes = () => {
   injectAutoSLCheckboxes('bingx-perp', () => {
-    const buyBtn = document.querySelector('.btn-wrap-both .btn-order-blue, .btn-wrap-single .btn-order-blue, button.btn-order-blue');
+    // Try to find the common buttons container first for stable injection
+    const directionBtns = document.querySelector('.direction-btns, .op-order-btn-wrapper, .btn-wrap-both, .btn-wrap-single');
+    if (directionBtns) return directionBtns;
+
+    const buyBtn = document.querySelector('button.btn-order-blue, .btn-order-blue');
     return buyBtn && buyBtn.parentElement ? buyBtn.parentElement : null;
   });
 };

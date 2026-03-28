@@ -84,28 +84,28 @@ const injectAutoSLCheckboxes = (idPrefix, targetElementFinder) => {
 
   const container = document.createElement('div');
   container.id = containerId;
-  container.style.display = 'flex';
-  container.style.justifyContent = 'space-between';
-  container.style.marginBottom = '8px';
-  container.style.fontSize = '12px';
-  container.style.color = '#fff';
-  container.style.width = '100%';
+  container.style.cssText = `
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-size: 12px;
+    color: #fff;
+    width: 100%;
+    flex: 0 0 100%;
+    box-sizing: border-box;
+    padding: 0 4px;
+    gap: 8px;
+  `;
 
   const longId = `auto-sl-${idPrefix}-long`;
   const longSL = document.createElement('label');
-  longSL.style.display = 'flex';
-  longSL.style.alignItems = 'center';
-  longSL.style.gap = '6px';
-  longSL.style.cursor = 'pointer';
-  longSL.innerHTML = `<input type="checkbox" id="${longId}"><span style="color: #2ebd85; font-weight: 500;">Long</span>`;
+  longSL.style.cssText = 'display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap;';
+  longSL.innerHTML = `<input type="checkbox" id="${longId}"><span style="color: #2ebd85; font-weight: 500;">Long Auto-SL</span>`;
 
   const shortId = `auto-sl-${idPrefix}-short`;
   const shortSL = document.createElement('label');
-  shortSL.style.display = 'flex';
-  shortSL.style.alignItems = 'center';
-  shortSL.style.gap = '6px';
-  shortSL.style.cursor = 'pointer';
-  shortSL.innerHTML = `<input type="checkbox" id="${shortId}"><span style="color: #f6465d; font-weight: 500;">Short</span>`;
+  shortSL.style.cssText = 'display: flex; align-items: center; gap: 6px; cursor: pointer; white-space: nowrap;';
+  shortSL.innerHTML = `<input type="checkbox" id="${shortId}"><span style="color: #f6465d; font-weight: 500;">Short Auto-SL</span>`;
 
   container.appendChild(longSL);
   container.appendChild(shortSL);
